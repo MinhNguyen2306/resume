@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex Rivera — Data Scientist &amp; ML Engineer</title>
+<meta name="description" content="Portfolio of Alex Rivera — data scientist and ML engineer building production machine learning systems.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <a href="#top" class="nav-logo">alex<span class="accent">.</span>rivera</a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="navMenu" class="nav-menu">
+      <a href="#projects">Projects</a>
+      <a href="#skills">Skills</a>
+      <a href="#resume">Resume</a>
+      <a href="#blog">Writing</a>
+      <a href="#contact" class="nav-cta">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text reveal">
+        <p class="eyebrow">Data Scientist · ML Engineer</p>
+        <h1>I turn messy data<br>into models that <span class="accent">ship.</span></h1>
+        <p class="hero-lede">Three years building end-to-end ML systems — feature pipelines, training, and production inference — for retail, fraud, and climate teams.</p>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">View projects</a>
+          <a href="#resume" class="btn btn-ghost">See resume</a>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <svg viewBox="0 0 480 380" class="boundary-svg" preserveAspectRatio="xMidYMid meet">
+          <path class="boundary-line" d="M30,350 C140,280 220,150 450,30" />
+          <circle class="point a" cx="90" cy="90" r="7"></circle>
+          <circle class="point a" cx="135" cy="55" r="6"></circle>
+          <circle class="point a" cx="60" cy="150" r="6"></circle>
+          <circle class="point a" cx="150" cy="125" r="5"></circle>
+          <circle class="point a" cx="105" cy="190" r="6"></circle>
+          <circle class="point a" cx="180" cy="80" r="5"></circle>
+          <circle class="point a" cx="40" cy="100" r="5"></circle>
+          <circle class="point b" cx="340" cy="260" r="7"></circle>
+          <circle class="point b" cx="300" cy="305" r="6"></circle>
+          <circle class="point b" cx="380" cy="220" r="6"></circle>
+          <circle class="point b" cx="390" cy="320" r="5"></circle>
+          <circle class="point b" cx="260" cy="270" r="6"></circle>
+          <circle class="point b" cx="320" cy="345" r="5"></circle>
+          <circle class="point b" cx="420" cy="270" r="5"></circle>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="projects">
+    <h2 class="section-title reveal"><span class="idx">[ ]</span> Projects</h2>
+    <div class="project-grid">
+
+      <article class="project-card reveal">
+        <p class="idx">[0]</p>
+        <h3>Churn Prediction Pipeline</h3>
+        <p>End-to-end pipeline that scores customer churn risk weekly, with automated retraining and drift monitoring built in.</p>
+        <ul class="tag-list">
+          <li>Python</li><li>XGBoost</li><li>Airflow</li><li>AWS</li>
+        </ul>
+        <a href="#" class="card-link">View repo →</a>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[1]</p>
+        <h3>Real-Time Fraud Detection</h3>
+        <p>Streaming feature computation over a Kafka pipeline feeding a low-latency inference service for transaction scoring.</p>
+        <ul class="tag-list">
+          <li>Kafka</li><li>FastAPI</li><li>Redis</li><li>Docker</li>
+        </ul>
+        <a href="#" class="card-link">View repo →</a>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[2]</p>
+        <h3>Semantic Document Search</h3>
+        <p>Vector-embedding retrieval system with a reranking stage, cutting average search-to-answer time by half.</p>
+        <ul class="tag-list">
+          <li>PyTorch</li><li>FAISS</li><li>Sentence-Transformers</li>
+        </ul>
+        <a href="#" class="card-link">View repo →</a>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[3]</p>
+        <h3>Climate Time-Series Forecasting</h3>
+        <p>Probabilistic forecasting models with calibrated uncertainty bands, used for regional planning scenarios.</p>
+        <ul class="tag-list">
+          <li>Prophet</li><li>PyMC</li><li>Pandas</li>
+        </ul>
+        <a href="#" class="card-link">View repo →</a>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="section" id="skills">
+    <h2 class="section-title reveal">Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-group reveal">
+        <p class="skill-label"># languages</p>
+        <ul class="tag-list"><li>Python</li><li>SQL</li><li>R</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># ml_frameworks</p>
+        <ul class="tag-list"><li>PyTorch</li><li>scikit-learn</li><li>XGBoost</li><li>Transformers</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># data_infra</p>
+        <ul class="tag-list"><li>Airflow</li><li>Spark</li><li>dbt</li><li>Kafka</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># cloud_devops</p>
+        <ul class="tag-list"><li>Azure</li><li>Terraform</li><li>Docker</li><li>GitHub Actions</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># visualization</p>
+        <ul class="tag-list"><li>Matplotlib</li><li>Plotly</li><li>Tableau</li></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="resume">
+    <h2 class="section-title reveal">Resume</h2>
+    <p class="section-lede reveal">A quick summary below — or grab the full PDF.</p>
+    <a href="resume.pdf" class="btn btn-ghost reveal" download>Download PDF ↓</a>
+
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <p class="timeline-date">2023 — Present</p>
+        <h3>ML Engineer, Particle Analytics</h3>
+        <ul>
+          <li>Lead the churn and fraud modeling workstream across two product teams.</li>
+          <li>Cut model deployment time from weeks to under a day by standardizing the training-to-serving pipeline.</li>
+        </ul>
+      </div>
+      <div class="timeline-item reveal">
+        <p class="timeline-date">2021 — 2023</p>
+        <h3>Data Scientist, Northwind Retail</h3>
+        <ul>
+          <li>Built demand-forecasting models adopted across 40+ store regions.</li>
+          <li>Partnered with engineering to move ad-hoc notebooks into a scheduled production pipeline.</li>
+        </ul>
+      </div>
+      <div class="timeline-item reveal">
+        <p class="timeline-date">2019 — 2021</p>
+        <h3>Data Analyst, Civic Insights Lab</h3>
+        <ul>
+          <li>Delivered survey and sensor-data analysis for three municipal policy reports.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="edu reveal">
+      <h3>Education &amp; Certifications</h3>
+      <ul>
+        <li>B.S. in Statistics — Lakeshore University, 2019</li>
+        <li>AZ-900: Microsoft Azure Fundamentals — in progress</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" id="blog">
+    <h2 class="section-title reveal">Writing</h2>
+    <ul class="log-list">
+      <li class="reveal"><span class="log-date">2026-05</span><a href="#">Why I rebuilt my portfolio with Terraform on Azure</a></li>
+      <li class="reveal"><span class="log-date">2026-03</span><a href="#">Notes on productionizing a churn model</a></li>
+      <li class="reveal"><span class="log-date">2026-01</span><a href="#">A practical guide to feature stores</a></li>
+    </ul>
+  </section>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div class="footer-text reveal">
+      <h2>Let's talk</h2>
+      <p>Open to ML engineering and applied data science roles.</p>
+      <a class="footer-email" href="mailto:alex@example.com">alex@example.com</a>
+    </div>
+    <div class="footer-links reveal">
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <p class="visitor-count">Visitors: <span id="visitorCount">—</span></p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
