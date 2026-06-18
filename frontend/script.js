@@ -22,6 +22,33 @@
   }
 
   /* ----------------------------------------
+     Theme toggle (light / dark)
+     The initial theme is set by an inline script in <head> to avoid
+     a flash; here we just handle the button and persist the choice.
+  ---------------------------------------- */
+  var themeToggle = document.getElementById("themeToggle");
+  if (themeToggle) {
+    var syncLabel = function () {
+      var isLight = document.documentElement.getAttribute("data-theme") === "light";
+      themeToggle.setAttribute(
+        "aria-label",
+        isLight ? "Switch to dark theme" : "Switch to light theme"
+      );
+    };
+    syncLabel();
+
+    themeToggle.addEventListener("click", function () {
+      var current = document.documentElement.getAttribute("data-theme");
+      var next = current === "light" ? "dark" : "light";
+      document.documentElement.setAttribute("data-theme", next);
+      try {
+        localStorage.setItem("mn_theme", next);
+      } catch (e) {}
+      syncLabel();
+    });
+  }
+
+  /* ----------------------------------------
      Reveal-on-scroll
   ---------------------------------------- */
   var revealEls = document.querySelectorAll(".reveal");
@@ -50,19 +77,26 @@
 
   /* ----------------------------------------
      Side rail: build from sections, track active
+     (only on pages that have the full main-page section set —
+     project detail pages share some ids like #top/#contact but
+     shouldn't get a broken partial rail)
   ---------------------------------------- */
-  var railSections = [
+  var railSectionDefs = [
     { id: "top", label: "Top" },
     { id: "projects", label: "Projects" },
     { id: "skills", label: "Skills" },
     { id: "resume", label: "Resume" },
     { id: "blog", label: "Writing" },
     { id: "contact", label: "Contact" }
-  ].filter(function (s) {
+  ];
+
+  var railSections = railSectionDefs.filter(function (s) {
     return document.getElementById(s.id) !== null;
   });
 
-  if (railSections.length) {
+  var isFullMainPage = railSections.length === railSectionDefs.length;
+
+  if (isFullMainPage) {
     var rail = document.createElement("nav");
     rail.className = "side-rail";
     rail.setAttribute("aria-label", "Section navigation");
@@ -158,5 +192,4 @@
     }
     visitorCountEl.textContent = count;
   }
-
 })();

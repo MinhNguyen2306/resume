@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
+<title>Churn Prediction Pipeline — Minh Nguyen</title>
+<meta name="description" content="Case study: an end-to-end weekly churn scoring pipeline with automated retraining and drift monitoring.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("mn_theme");
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <a href="../index.html#top" class="nav-logo"><span class="accent">Minh Nguyen</span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="navMenu" class="nav-menu">
+      <a href="../index.html#projects">Projects</a>
+      <a href="../index.html#skills">Skills</a>
+      <a href="../index.html#resume">Resume</a>
+      <a href="../index.html#blog">Writing</a>
+      <a href="../index.html#contact" class="nav-cta">Contact</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="project-hero">
+    <p class="breadcrumb"><a href="../index.html#projects">Projects</a> / Churn Prediction Pipeline</p>
+    <span class="idx reveal">[0]</span>
+    <h1 class="reveal">Churn Prediction Pipeline</h1>
+    <p class="summary reveal">An end-to-end pipeline that scores customer churn risk every week, retrains itself on a schedule, and flags model drift before it silently degrades decisions downstream.</p>
+
+    <ul class="project-meta reveal">
+      <li>Python</li><li>XGBoost</li><li>Airflow</li><li>AWS</li>
+    </ul>
+
+    <div class="project-actions reveal">
+      <a href="#" class="btn btn-primary" target="_blank" rel="noopener">View on GitHub →</a>
+      <a href="../index.html#projects" class="btn btn-ghost">← Back to projects</a>
+    </div>
+  </section>
+
+  <div class="project-body">
+
+    <section class="project-section reveal">
+      <h2>The problem</h2>
+      <p>The product team could see churn happening in hindsight — by the time a customer cancelled, it was too late to intervene. They needed a forward-looking risk score that updated automatically and stayed honest as customer behavior shifted over time.</p>
+    </section>
+
+    <section class="project-section reveal">
+      <h2>Approach</h2>
+      <p>The pipeline pulls behavioral and billing events nightly, builds a rolling feature set (engagement decay, support ticket velocity, billing friction), and scores every active account weekly with a gradient-boosted model.</p>
+      <ul>
+        <li>Feature pipeline built on scheduled Airflow DAGs, with each stage independently retriable.</li>
+        <li>XGBoost classifier retrained on a sliding 12-month window, versioned and compared against the live model before promotion.</li>
+        <li>Drift monitoring on both feature distributions and prediction calibration, with automatic alerts if either drifts past a threshold.</li>
+        <li>Inference and retraining jobs run on scheduled AWS batch compute, with results written back to the warehouse for the CS team's dashboards.</li>
+      </ul>
+    </section>
+
+    <section class="project-section reveal">
+      <h2>Screenshot</h2>
+      <div class="shot-frame">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&q=80" alt="Dashboard showing churn risk scores and model drift metrics over time" loading="lazy">
+        <p class="shot-caption">Weekly churn risk distribution and drift monitor, as surfaced to the CS team.</p>
+      </div>
+    </section>
+
+    <section class="project-section reveal">
+      <h2>Results</h2>
+      <div class="results-grid">
+        <div class="result-stat">
+          <span class="num">+18%</span>
+          <span class="label">retention on flagged at-risk accounts</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">Weekly</span>
+          <span class="label">automated scoring cadence</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">0</span>
+          <span class="label">manual retrains needed since launch</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="project-section reveal">
+      <h2>What I'd do differently</h2>
+      <p>Calibration monitoring came later than it should have — building it in from day one would have caught an early drift issue faster. Next iteration moves feature computation to streaming rather than nightly batch, to shorten the response window.</p>
+    </section>
+
+  </div>
+
+  <nav class="project-nav">
+    <a href="../index.html#projects" class="project-nav-link prev">
+      <span class="dir">← Back to all projects</span>
+    </a>
+    <a href="fraud-detection.html" class="project-nav-link next">
+      <span class="dir">Next project →</span>
+      <span>Real-Time Fraud Detection</span>
+    </a>
+  </nav>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div class="footer-text reveal">
+      <h2>Let's talk</h2>
+      <p>Open to data engineering and analytics roles.</p>
+      <a class="footer-email" href="mailto:minh@example.com">minh@example.com</a>
+    </div>
+    <div class="footer-links reveal">
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <p class="visitor-count">Visitors: <span id="visitorCount">—</span></p>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>

@@ -2,13 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
 <title>Minh Nguyen — Data Engineer | Data Analyst | BI Engineer &amp; ML Engineer</title>
 <meta name="description" content="Portfolio of Minh Nguyen — data engineer and analytics specialist building production data pipelines and BI systems.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("mn_theme");
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -26,6 +36,10 @@
       <a href="#blog">Writing</a>
       <a href="#contact" class="nav-cta">Contact</a>
     </nav>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
+    </button>
   </div>
 </header>
 
@@ -35,7 +49,7 @@
     <div class="hero-inner">
       <div class="hero-text reveal">
         <p class="eyebrow">Full-Stack Data</p>
-        <h1>I turn messy data<br>into models that <span class="accent">ship.</span></h1>
+        <h1>I turn messy data into models <span class="nowrap">that <span class="accent">ship.</span></span></h1>
         <p class="hero-lede">I build scalable data pipelines, design reliable data workflows,
             and transform raw data into meaningful insights.
             I specialize in data engineering, ETL processes, database systems,
@@ -73,163 +87,163 @@
 
       <article class="project-card reveal">
         <p class="idx">[0]</p>
-        <h3>Churn Prediction Pipeline</h3>
+        <h3><a href="projects/churn-prediction.html" class="project-title-link">Churn Prediction Pipeline</a></h3>
         <p>End-to-end pipeline that scores customer churn risk weekly, with automated retraining and drift monitoring built in.</p>
         <ul class="tag-list">
           <li>Python</li><li>XGBoost</li><li>Airflow</li><li>AWS</li>
         </ul>
-        <a href="#" class="card-link">View repo →</a>
+        <div class="card-links">
+          <a href="projects/churn-prediction.html" class="card-link card-link-primary">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
       </article>
 
       <article class="project-card reveal">
         <p class="idx">[1]</p>
-        <h3>Real-Time Fraud Detection</h3>
+        <h3><a href="projects/fraud-detection.html" class="project-title-link">Real-Time Fraud Detection</a></h3>
         <p>Streaming feature computation over a Kafka pipeline feeding a low-latency inference service for transaction scoring.</p>
         <ul class="tag-list">
           <li>Kafka</li><li>FastAPI</li><li>Redis</li><li>Docker</li>
         </ul>
-        <a href="#" class="card-link">View repo →</a>
+        <div class="card-links">
+          <a href="projects/fraud-detection.html" class="card-link card-link-primary">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
       </article>
 
       <article class="project-card reveal">
         <p class="idx">[2]</p>
-        <h3>Semantic Document Search</h3>
+        <h3><a href="projects/semantic-search.html" class="project-title-link">Semantic Document Search</a></h3>
         <p>Vector-embedding retrieval system with a reranking stage, cutting average search-to-answer time by half.</p>
         <ul class="tag-list">
           <li>PyTorch</li><li>FAISS</li><li>Sentence-Transformers</li>
         </ul>
-        <a href="#" class="card-link">View repo →</a>
+        <div class="card-links">
+          <a href="projects/semantic-search.html" class="card-link card-link-primary">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
       </article>
 
       <article class="project-card reveal">
         <p class="idx">[3]</p>
-        <h3>Climate Time-Series Forecasting</h3>
+        <h3><a href="projects/climate-forecasting.html" class="project-title-link">Climate Time-Series Forecasting</a></h3>
         <p>Probabilistic forecasting models with calibrated uncertainty bands, used for regional planning scenarios.</p>
         <ul class="tag-list">
           <li>Prophet</li><li>PyMC</li><li>Pandas</li>
         </ul>
-        <a href="#" class="card-link">View repo →</a>
+        <div class="card-links">
+          <a href="projects/climate-forecasting.html" class="card-link card-link-primary">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+        </div>
       </article>
 
     </div>
   </section>
 
-<section class="section" id="skills">
-  <h2 class="section-title reveal">Skills</h2>
-
-  <div class="skills-grid">
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># programming_query_languages</p>
-      <ul class="tag-list">
-        <li>Python</li>
-        <li>SQL</li>
-      </ul>
+  <section class="section" id="skills">
+    <h2 class="section-title reveal">Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-group reveal">
+        <p class="skill-label"># languages</p>
+        <ul class="tag-list"><li>Python</li><li>SQL</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># data_engineering</p>
+        <ul class="tag-list"><li>Apache Spark</li><li>Apache Airflow</li><li>Hadoop (HDFS)</li><li>Apache NiFi</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># databases</p>
+        <ul class="tag-list"><li>PostgreSQL</li><li>MySQL</li><li>Azure SQL</li><li>MongoDB</li><li>Cassandra</li><li>Hive</li><li>Trino</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># data_modeling</p>
+        <ul class="tag-list"><li>Star Schema</li><li>Snowflake Schema</li><li>Data Quality &amp; Validation</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># visualization_bi</p>
+        <ul class="tag-list"><li>Power BI (DAX, Power Query)</li><li>Apache Superset</li></ul>
+      </div>
+      <div class="skill-group reveal">
+        <p class="skill-label"># tools_platforms</p>
+        <ul class="tag-list"><li>Docker</li><li>Linux (Ubuntu)</li><li>Apache Kafka</li></ul>
+      </div>
     </div>
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># data_engineering_big_data</p>
-      <ul class="tag-list">
-        <li>Apache Spark</li>
-        <li>Apache Airflow</li>
-        <li>Hadoop HDFS</li>
-        <li>Apache NiFi</li>
-        <li>Apache Kafka</li>
-      </ul>
-    </div>
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># databases_storage</p>
-      <ul class="tag-list">
-        <li>PostgreSQL</li>
-        <li>MySQL</li>
-        <li>Azure SQL</li>
-        <li>MongoDB</li>
-        <li>Apache Cassandra</li>
-        <li>Hive</li>
-        <li>Trino</li>
-      </ul>
-    </div>
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># data_modeling_quality</p>
-      <ul class="tag-list">
-        <li>Star Schema</li>
-        <li>Snowflake Schema</li>
-        <li>Data Warehouse</li>
-        <li>Data Quality</li>
-        <li>Data Validation</li>
-      </ul>
-    </div>
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># analytics_bi</p>
-      <ul class="tag-list">
-        <li>Power BI</li>
-        <li>DAX</li>
-        <li>Power Query</li>
-        <li>Apache Superset</li>
-      </ul>
-    </div>
-
-    <div class="skill-group reveal">
-      <p class="skill-label"># tools_platforms</p>
-      <ul class="tag-list">
-        <li>Docker</li>
-        <li>Linux Ubuntu</li>
-        <li>Git</li>
-        <li>GitHub</li>
-      </ul>
-    </div>
-
-  </div>
-</section>
+  </section>
 
   <section class="section" id="resume">
     <h2 class="section-title reveal">Resume</h2>
     <p class="section-lede reveal">A quick summary below — or grab the full PDF.</p>
-    <a href="c:\Users\Minh\Downloads\Main CV's (2).pdf" class="btn btn-ghost reveal" download>Download PDF ↓</a>
+    <a href="resume.pdf" class="btn btn-ghost reveal" download>Download PDF ↓</a>
 
     <div class="timeline">
       <div class="timeline-item reveal">
-        <p class="timeline-date">2023 — Present</p>
-        <h3>ML Engineer, Particle Analytics</h3>
+        <p class="timeline-date">Apr 2026 — Present</p>
+        <h3>Data Systems &amp; Database Engineer (Contributor), Fundlok</h3>
         <ul>
-          <li>Lead the churn and fraud modeling workstream across two product teams.</li>
-          <li>Cut model deployment time from weeks to under a day by standardizing the training-to-serving pipeline.</li>
+          <li>Designed and maintained the PostgreSQL schema (ERD/data model) for financial transaction systems, including normalization, relationship design, and indexing strategies.</li>
+          <li>Handled database optimization — query tuning and performance improvements for transaction-heavy workloads.</li>
+          <li>Built and maintained CI/CD pipelines with GitHub Actions, supporting automated quality checks, testing, and deployment.</li>
+          <li>Collaborated with developers to keep backend–database integration consistent across services and environments, improving system reliability and database change management.</li>
         </ul>
       </div>
       <div class="timeline-item reveal">
-        <p class="timeline-date">2021 — 2023</p>
-        <h3>Data Scientist, Northwind Retail</h3>
+        <p class="timeline-date">Mar 2026 — Present</p>
+        <h3>Performance &amp; Commercial Coordinator (Internship), ECOM | Ezcloud</h3>
         <ul>
-          <li>Built demand-forecasting models adopted across 40+ store regions.</li>
-          <li>Partnered with engineering to move ad-hoc notebooks into a scheduled production pipeline.</li>
+          <li>Built and maintained Power BI dashboards tracking hotel e-commerce performance across OTAs, enabling faster, more data-driven commercial decisions.</li>
+          <li>Analyzed booking, revenue, and promotion data to surface performance gaps and optimization opportunities, supporting pricing decisions and suggested actions.</li>
+          <li>Contributed to a 30M VND revenue uplift, exceeding target by 7% (400M VND vs. 373M VND target).</li>
         </ul>
       </div>
       <div class="timeline-item reveal">
-        <p class="timeline-date">2019 — 2021</p>
-        <h3>Data Analyst, Civic Insights Lab</h3>
+        <p class="timeline-date">Nov 2025 — Feb 2026</p>
+        <h3>Data Engineering Intern / BI Support, VNPT</h3>
         <ul>
-          <li>Delivered survey and sensor-data analysis for three municipal policy reports.</li>
+          <li>Supported and observed a data workflow built on Apache NiFi, assisting with basic configuration and monitoring of batch data flows.</li>
+          <li>Assisted with data validation and quality checking to ensure consistency and accuracy of processed datasets.</li>
+          <li>Supported data transformation and preparation for reporting and downstream analytics use cases.</li>
+          <li>Built Power BI dashboards to visualize operational KPIs such as report volume, processing status, and resolution time.</li>
         </ul>
       </div>
+    </div>
+
+    <div class="edu-grid">
+    <div class="edu reveal">
+      <h3>Education</h3>
+      <ul>
+        <li>B.S. in Statistics — Lakeshore University, 2019</li>
+      </ul>
     </div>
 
     <div class="edu reveal">
-      <h3>Education &amp; Certifications</h3>
+      <h3>Certifications</h3>
       <ul>
-        <li>B.S. in English Studies, 2021</li>
-        <li>Databricks: Data Engineer Association — in progress</li>
-        <li>Core CS foundations: C++, Data Structures & Algorithms
-        <li>Database fundamentals & distributed systems</li>    
-        <li>Mathematics for Machine Learning</li>          
-        <li>Applied Data Engineering practices (self-learning)</li>
+        <li>Google Data Analytics</li>
+        <li>Databricks Data Engineer — in progress</li>
       </ul>
+    </div>
+
+    <div class="edu reveal">
+      <h3>Additional Technical Training (Self-directed)</h3>
+      <ul>
+        <li>Core CS foundations: C++, Data Structures &amp; Algorithms</li>
+        <li>Database fundamentals &amp; distributed systems</li>
+        <li>Mathematics for Machine Learning</li>
+        <li>Applied data engineering practices</li>
+      </ul>
+    </div>
+
+    <div class="edu reveal">
+      <h3>Languages</h3>
+      <ul>
+        <li>English — Upper-intermediate</li>
+        <li>Vietnamese — Native</li>
+      </ul>
+    </div>
     </div>
   </section>
 
-  <section class="section" id="blog"></section>
+  <section class="section" id="blog">
     <h2 class="section-title reveal">Writing</h2>
     <ul class="log-list">
       <li class="reveal"><span class="log-date">2026-05</span><a href="#">Why I rebuilt my portfolio with Terraform on Azure</a></li>
@@ -245,11 +259,11 @@
     <div class="footer-text reveal">
       <h2>Let's talk</h2>
       <p>Open to data engineering and analytics roles.</p>
-      <a class="footer-email" href="mailto:ndminh206@gmail.com">welcome</a>
+      <a class="footer-email" href="mailto:minh@example.com">minh@example.com</a>
     </div>
     <div class="footer-links reveal">
-      <a href="https://github.com/MinhNguyen2306" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://www.linkedin.com/in/minh-duc-nguyen23/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
   <p class="visitor-count">Visitors: <span id="visitorCount">—</span></p>
