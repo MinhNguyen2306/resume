@@ -1,21 +1,30 @@
 terraform {
   required_version = ">= 1.5.0"
 
+  cloud {
+    organization = "resume_minhnguyen"
+  }
+
   required_providers {
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.4"
+    vercel = {
+      source  = "vercel/vercel"
+      version = "~> 3.0"
     }
   }
 }
 
-resource "local_file" "environment_info" {
-  filename = "${path.module}/build-${var.environment}.txt"
+provider "vercel" {
+  team = "team_WJaeExvSHkA4DN458z6DmmQM"
+}
 
-  content = <<EOT
-Project: Resume Portfolio
-Environment: ${var.environment}
-Managed By: Terraform
-Generated: ${timestamp()}
-EOT
+resource "vercel_project" "resume" {
+  name           = var.project_name
+  framework      = var.framework != "" ? var.framework : null
+  team_id        = "team_WJaeExvSHkA4DN458z6DmmQM"
+  root_directory = "frontend"
+
+  git_repository = {
+    type = "github"
+    repo = var.github_repo
+  }
 }

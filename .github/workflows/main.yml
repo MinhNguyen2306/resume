@@ -5,17 +5,23 @@ on:
     paths:
       - "terraform/**"
 
+permissions:
+  contents: read
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        environment: [dev, prod]
-
     defaults:
       run:
         working-directory: terraform
+
+    env:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      TF_WORKSPACE: resume-prod
+      TF_VAR_environment: prod
+      TF_VAR_project_name: resume
+      TF_VAR_github_repo: MinhNguyen2306/resume
+      TF_VAR_framework: ""
 
     steps:
       - name: Checkout
@@ -23,15 +29,17 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init -input=false
 
-      - name: Terraform Format
+      - name: Terraform Format Check
         run: terraform fmt -check
 
       - name: Terraform Validate
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -var-file=${{ matrix.environment }}.tfvars
+        run: terraform plan -input=false -no-color

@@ -178,6 +178,160 @@
   }
 
   /* ----------------------------------------
+     Hero particle network
+     Two clusters (gray + accent) drifting and linking to nearby
+     same-cluster points, split by a dashed boundary curve.
+     Pauses when offscreen; static if reduced-motion is preferred.
+  ---------------------------------------- */
+  var heroCanvas = document.getElementById("heroCanvas");
+  if (heroCanvas && heroCanvas.getContext) {
+    var pctx = heroCanvas.getContext("2d");
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var cssVal = function (name, fallback) {
+      var v = getComputedStyle(document.documentElement).getPropertyValue(name);
+      return (v && v.trim()) || fallback;
+    };
+    var pW = 0, pH = 0, particles = [];
+    var LINK = 80;
+    var reduceMotion =
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    var buildParticles = function () {
+      particles = [];
+      var n = pW < 360 ? 14 : 18;
+      for (var i = 0; i < n; i++) {
+        var cluster = i < n / 2 ? 0 : 1;
+        var x, y;
+        if (cluster === 0) {
+          x = Math.random() * pW * 0.42;
+          y = Math.random() * pH * 0.5;
+        } else {
+          x = pW * 0.55 + Math.random() * pW * 0.42;
+          y = pH * 0.45 + Math.random() * pH * 0.5;
+        }
+        particles.push({
+          x: x, y: y,
+          vx: (Math.random() - 0.5) * 0.35,
+          vy: (Math.random() - 0.5) * 0.35,
+          r: 2 + Math.random() * 2.5,
+          c: cluster
+        });
+      }
+    };
+
+    var resizeCanvas = function () {
+      var rect = heroCanvas.getBoundingClientRect();
+      pW = rect.width;
+      pH = rect.height;
+      heroCanvas.width = pW * dpr;
+      heroCanvas.height = pH * dpr;
+      pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildParticles();
+    };
+
+    var draw = function () {
+      var dotA = cssVal("--ink-dim", "#9aa3b5");
+      var accent = cssVal("--accent", "#4d9fff");
+      var boundary = cssVal("--ink-faint", "#5a6376");
+
+      pctx.clearRect(0, 0, pW, pH);
+
+      pctx.save();
+      pctx.strokeStyle = boundary;
+      pctx.globalAlpha = 0.5;
+      pctx.lineWidth = 1;
+      pctx.setLineDash([4, 6]);
+      pctx.beginPath();
+      pctx.moveTo(pW * 0.08, pH * 0.92);
+      pctx.bezierCurveTo(pW * 0.35, pH * 0.7, pW * 0.5, pH * 0.35, pW * 0.95, pH * 0.08);
+      pctx.stroke();
+      pctx.restore();
+
+      var i, j;
+      if (!reduceMotion) {
+        for (i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > pW) p.vx *= -1;
+          if (p.y < 0 || p.y > pH) p.vy *= -1;
+        }
+      }
+
+      for (i = 0; i < particles.length; i++) {
+        for (j = i + 1; j < particles.length; j++) {
+          var a = particles[i], b = particles[j];
+          if (a.c !== b.c) continue;
+          var dx = a.x - b.x, dy = a.y - b.y;
+          var d = Math.sqrt(dx * dx + dy * dy);
+          if (d < LINK) {
+            pctx.strokeStyle = accent;
+            pctx.globalAlpha = (1 - d / LINK) * 0.45;
+            pctx.lineWidth = 0.6;
+            pctx.beginPath();
+            pctx.moveTo(a.x, a.y);
+            pctx.lineTo(b.x, b.y);
+            pctx.stroke();
+          }
+        }
+      }
+
+      pctx.globalAlpha = 1;
+      for (i = 0; i < particles.length; i++) {
+        var pt = particles[i];
+        pctx.beginPath();
+        pctx.arc(pt.x, pt.y, pt.r, 0, Math.PI * 2);
+        pctx.fillStyle = pt.c === 0 ? dotA : accent;
+        pctx.fill();
+      }
+    };
+
+    var rafId = null;
+    var running = false;
+    var loop = function () {
+      draw();
+      rafId = requestAnimationFrame(loop);
+    };
+    var start = function () {
+      if (running || reduceMotion) return;
+      running = true;
+      loop();
+    };
+    var stop = function () {
+      running = false;
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    };
+
+    resizeCanvas();
+    draw();
+
+    var rzTimer;
+    window.addEventListener("resize", function () {
+      clearTimeout(rzTimer);
+      rzTimer = setTimeout(resizeCanvas, 200);
+    });
+
+    if (reduceMotion) {
+      draw();
+    } else if ("IntersectionObserver" in window) {
+      var heroObs = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) start();
+            else stop();
+          });
+        },
+        { threshold: 0.05 }
+      );
+      heroObs.observe(heroCanvas);
+    } else {
+      start();
+    }
+  }
+
+  /* ----------------------------------------
      Visitor count (local, session-based placeholder)
   ---------------------------------------- */
   var visitorCountEl = document.getElementById("visitorCount");
