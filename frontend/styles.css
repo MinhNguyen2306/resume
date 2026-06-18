@@ -679,17 +679,35 @@ a {
     width: 100%;
   }
 
+  .hero {
+    position: relative;
+    overflow: hidden;
+  }
   .hero-inner {
     grid-template-columns: 1fr;
   }
-  /* Show the animated particle network below the headline on phones,
-     scaled down so it's a visual accent rather than the lead. */
+  /* On phones, place the particle network as a full-bleed background
+     layer behind the hero text instead of a separate block below it. */
+  .hero-text {
+    position: relative;
+    z-index: 2;
+  }
   .hero-art {
     display: block;
-    max-width: 380px;
-    margin: 1.5rem auto 0;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    margin: 0;
+    max-width: none;
+    z-index: 1;
+    opacity: 0.5;
+    pointer-events: none;
   }
-  .hero-canvas { height: 240px; }
+  .hero-canvas {
+    width: 100%;
+    height: 100%;
+    max-height: none;
+  }
 
   .hero-actions { width: 100%; }
   .hero-actions .btn {
