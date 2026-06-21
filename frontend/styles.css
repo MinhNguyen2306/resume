@@ -179,6 +179,31 @@ a {
 [data-theme="light"] .theme-toggle .icon-moon { display: none; }
 [data-theme="light"] .theme-toggle .icon-sun { display: block; }
 
+/* Language toggle */
+.lang-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 1.25rem;
+  padding: 0 0.4rem;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+}
+.lang-toggle:hover { border-color: var(--accent); }
+.lang-toggle .lang-sep { color: var(--ink-faint); }
+/* Active language is highlighted; EN by default, VI when .is-vi */
+.lang-toggle .lang-en { color: var(--accent); font-weight: 500; }
+.lang-toggle .lang-vi { color: var(--ink-faint); }
+.lang-toggle.is-vi .lang-en { color: var(--ink-faint); font-weight: 400; }
+.lang-toggle.is-vi .lang-vi { color: var(--accent); font-weight: 500; }
+
 /* ============================================
    Hero
    ============================================ */
@@ -638,8 +663,9 @@ a {
    Mobile nav
    ============================================ */
 @media (max-width: 760px) {
-  .nav-toggle { display: flex; order: 3; }
-  .theme-toggle { order: 2; margin-left: auto; margin-right: 0.25rem; }
+  .nav-toggle { display: flex; order: 4; }
+  .lang-toggle { order: 2; margin-left: auto; margin-right: 0.4rem; }
+  .theme-toggle { order: 3; margin-left: 0; margin-right: 0.25rem; }
 
   .nav-inner {
     padding-left: max(var(--gutter), env(safe-area-inset-left));

@@ -30,12 +30,15 @@
       <span></span><span></span><span></span>
     </button>
     <nav id="navMenu" class="nav-menu">
-      <a href="#projects">Projects</a>
-      <a href="#skills">Skills</a>
-      <a href="#resume">Resume</a>
-      <a href="#blog">Writing</a>
-      <a href="#contact" class="nav-cta">Contact</a>
+      <a href="#projects" data-i18n="nav.projects">Projects</a>
+      <a href="#skills" data-i18n="nav.skills">Skills</a>
+      <a href="#resume" data-i18n="nav.resume">Resume</a>
+      <a href="#blog" data-i18n="nav.writing">Writing</a>
+      <a href="#contact" class="nav-cta" data-i18n="nav.contact">Contact</a>
     </nav>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-vi">VI</span>
+    </button>
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
       <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
       <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
@@ -48,15 +51,15 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-text reveal">
-        <p class="eyebrow">Full-Stack Data</p>
-        <h1>I turn messy data into models <span class="nowrap">that <span class="accent">ship.</span></span></h1>
-        <p class="hero-lede">I build scalable data pipelines, design reliable data workflows,
+        <p class="eyebrow" data-i18n="hero.eyebrow">Full-Stack Data</p>
+        <h1 data-i18n-html="hero.title">I turn messy data into models <span class="nowrap">that <span class="accent">ship.</span></span></h1>
+        <p class="hero-lede" data-i18n="hero.lede">I build scalable data pipelines, design reliable data workflows,
             and transform raw data into meaningful insights.
             I specialize in data engineering, ETL processes, database systems,
             and analytics solutions that help organizations make better decisions.</p>
         <div class="hero-actions">
-          <a href="#projects" class="btn btn-primary">View projects</a>
-          <a href="#resume" class="btn btn-ghost">See resume</a>
+          <a href="#projects" class="btn btn-primary" data-i18n="hero.viewProjects">View projects</a>
+          <a href="#resume" class="btn btn-ghost" data-i18n="hero.seeResume">See resume</a>
         </div>
       </div>
       <div class="hero-art" aria-hidden="true">
@@ -66,58 +69,32 @@
   </section>
 
   <section class="section" id="projects">
-    <h2 class="section-title reveal"><span class="idx">[ ]</span> Projects</h2>
+    <h2 class="section-title reveal"><span class="idx">[ ]</span> <span data-i18n="section.projects">Projects</span></h2>
     <div class="project-grid">
 
       <article class="project-card reveal">
         <p class="idx">[0]</p>
-        <h3><a href="projects/churn-prediction.html" class="project-title-link">Churn Prediction Pipeline</a></h3>
-        <p>End-to-end pipeline that scores customer churn risk weekly, with automated retraining and drift monitoring built in.</p>
+        <h3><a href="projects/customer-segmentation.html" class="project-title-link" data-i18n="proj.rfm.title">Customer Segmentation — RFM Analysis</a></h3>
+        <p data-i18n="proj.rfm.desc">Segmenting 4.35M customer contracts into 9 actionable cohorts with SQL-based RFM scoring, delivered as a 4-page Power BI dashboard for the CS team.</p>
         <ul class="tag-list">
-          <li>Python</li><li>XGBoost</li><li>Airflow</li><li>AWS</li>
+          <li>Python</li><li>SQL</li><li>Supabase</li><li>Power BI</li>
         </ul>
         <div class="card-links">
-          <a href="projects/churn-prediction.html" class="card-link card-link-primary">View case study →</a>
-          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="projects/customer-segmentation.html" class="card-link card-link-primary" data-i18n="card.viewCase">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener" data-i18n="card.github">GitHub ↗</a>
         </div>
       </article>
 
       <article class="project-card reveal">
         <p class="idx">[1]</p>
-        <h3><a href="projects/fraud-detection.html" class="project-title-link">Real-Time Fraud Detection</a></h3>
-        <p>Streaming feature computation over a Kafka pipeline feeding a low-latency inference service for transaction scoring.</p>
+        <h3><a href="projects/churn-prediction.html" class="project-title-link" data-i18n="proj.churn.title">Churn Prediction Pipeline</a></h3>
+        <p data-i18n="proj.churn.desc">End-to-end pipeline that scores customer churn risk weekly, with automated retraining and drift monitoring built in.</p>
         <ul class="tag-list">
-          <li>Kafka</li><li>FastAPI</li><li>Redis</li><li>Docker</li>
+          <li>Python</li><li>XGBoost</li><li>Airflow</li><li>AWS</li>
         </ul>
         <div class="card-links">
-          <a href="projects/fraud-detection.html" class="card-link card-link-primary">View case study →</a>
-          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
-        </div>
-      </article>
-
-      <article class="project-card reveal">
-        <p class="idx">[2]</p>
-        <h3><a href="projects/semantic-search.html" class="project-title-link">Semantic Document Search</a></h3>
-        <p>Vector-embedding retrieval system with a reranking stage, cutting average search-to-answer time by half.</p>
-        <ul class="tag-list">
-          <li>PyTorch</li><li>FAISS</li><li>Sentence-Transformers</li>
-        </ul>
-        <div class="card-links">
-          <a href="projects/semantic-search.html" class="card-link card-link-primary">View case study →</a>
-          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
-        </div>
-      </article>
-
-      <article class="project-card reveal">
-        <p class="idx">[3]</p>
-        <h3><a href="projects/climate-forecasting.html" class="project-title-link">Climate Time-Series Forecasting</a></h3>
-        <p>Probabilistic forecasting models with calibrated uncertainty bands, used for regional planning scenarios.</p>
-        <ul class="tag-list">
-          <li>Prophet</li><li>PyMC</li><li>Pandas</li>
-        </ul>
-        <div class="card-links">
-          <a href="projects/climate-forecasting.html" class="card-link card-link-primary">View case study →</a>
-          <a href="#" class="card-link" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="projects/churn-prediction.html" class="card-link card-link-primary" data-i18n="card.viewCase">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener" data-i18n="card.github">GitHub ↗</a>
         </div>
       </article>
 
@@ -125,7 +102,7 @@
   </section>
 
   <section class="section" id="skills">
-    <h2 class="section-title reveal">Skills</h2>
+    <h2 class="section-title reveal" data-i18n="section.skills">Skills</h2>
     <div class="skills-grid">
       <div class="skill-group reveal">
         <p class="skill-label"># languages</p>
@@ -155,84 +132,84 @@
   </section>
 
   <section class="section" id="resume">
-    <h2 class="section-title reveal">Resume</h2>
-    <p class="section-lede reveal">A quick summary below — or grab the full PDF.</p>
-    <a href="resume.pdf" class="btn btn-ghost reveal" download>Download PDF ↓</a>
+    <h2 class="section-title reveal" data-i18n="section.resume">Resume</h2>
+    <p class="section-lede reveal" data-i18n="resume.lede">A quick summary below — or grab the full PDF.</p>
+    <a href="resume.pdf" class="btn btn-ghost reveal" download data-i18n="resume.download">Download PDF ↓</a>
 
     <div class="timeline">
       <div class="timeline-item reveal">
-        <p class="timeline-date">Apr 2026 — Present</p>
-        <h3>Data Systems &amp; Database Engineer (Contributor), Fundlok</h3>
+        <p class="timeline-date" data-i18n="exp.fundlok.date">Apr 2026 — Present</p>
+        <h3 data-i18n="exp.fundlok.role">Data Systems &amp; Database Engineer (Contributor), Fundlok</h3>
         <ul>
-          <li>Designed and maintained the PostgreSQL schema (ERD/data model) for financial transaction systems, including normalization, relationship design, and indexing strategies.</li>
-          <li>Handled database optimization — query tuning and performance improvements for transaction-heavy workloads.</li>
-          <li>Built and maintained CI/CD pipelines with GitHub Actions, supporting automated quality checks, testing, and deployment.</li>
-          <li>Collaborated with developers to keep backend–database integration consistent across services and environments, improving system reliability and database change management.</li>
+          <li data-i18n="exp.fundlok.b1">Designed and maintained the PostgreSQL schema (ERD/data model) for financial transaction systems, including normalization, relationship design, and indexing strategies.</li>
+          <li data-i18n="exp.fundlok.b2">Handled database optimization — query tuning and performance improvements for transaction-heavy workloads.</li>
+          <li data-i18n="exp.fundlok.b3">Built and maintained CI/CD pipelines with GitHub Actions, supporting automated quality checks, testing, and deployment.</li>
+          <li data-i18n="exp.fundlok.b4">Collaborated with developers to keep backend–database integration consistent across services and environments, improving system reliability and database change management.</li>
         </ul>
       </div>
       <div class="timeline-item reveal">
-        <p class="timeline-date">Mar 2026 — Present</p>
-        <h3>Performance &amp; Commercial Coordinator (Internship), ECOM | Ezcloud</h3>
+        <p class="timeline-date" data-i18n="exp.ezcloud.date">Mar 2026 — Present</p>
+        <h3 data-i18n="exp.ezcloud.role">Performance &amp; Commercial Coordinator (Internship), ECOM | Ezcloud</h3>
         <ul>
-          <li>Built and maintained Power BI dashboards tracking hotel e-commerce performance across OTAs, enabling faster, more data-driven commercial decisions.</li>
-          <li>Analyzed booking, revenue, and promotion data to surface performance gaps and optimization opportunities, supporting pricing decisions and suggested actions.</li>
-          <li>Contributed to a 30M VND revenue uplift, exceeding target by 7% (400M VND vs. 373M VND target).</li>
+          <li data-i18n="exp.ezcloud.b1">Built and maintained Power BI dashboards tracking hotel e-commerce performance across OTAs, enabling faster, more data-driven commercial decisions.</li>
+          <li data-i18n="exp.ezcloud.b2">Analyzed booking, revenue, and promotion data to surface performance gaps and optimization opportunities, supporting pricing decisions and suggested actions.</li>
+          <li data-i18n="exp.ezcloud.b3">Contributed to a 30M VND revenue uplift, exceeding target by 7% (400M VND vs. 373M VND target).</li>
         </ul>
       </div>
       <div class="timeline-item reveal">
-        <p class="timeline-date">Nov 2025 — Feb 2026</p>
-        <h3>Data Engineering Intern / BI Support, VNPT</h3>
+        <p class="timeline-date" data-i18n="exp.vnpt.date">Nov 2025 — Feb 2026</p>
+        <h3 data-i18n="exp.vnpt.role">Data Engineering Intern / BI Support, VNPT</h3>
         <ul>
-          <li>Supported and observed a data workflow built on Apache NiFi, assisting with basic configuration and monitoring of batch data flows.</li>
-          <li>Assisted with data validation and quality checking to ensure consistency and accuracy of processed datasets.</li>
-          <li>Supported data transformation and preparation for reporting and downstream analytics use cases.</li>
-          <li>Built Power BI dashboards to visualize operational KPIs such as report volume, processing status, and resolution time.</li>
+          <li data-i18n="exp.vnpt.b1">Supported and observed a data workflow built on Apache NiFi, assisting with basic configuration and monitoring of batch data flows.</li>
+          <li data-i18n="exp.vnpt.b2">Assisted with data validation and quality checking to ensure consistency and accuracy of processed datasets.</li>
+          <li data-i18n="exp.vnpt.b3">Supported data transformation and preparation for reporting and downstream analytics use cases.</li>
+          <li data-i18n="exp.vnpt.b4">Built Power BI dashboards to visualize operational KPIs such as report volume, processing status, and resolution time.</li>
         </ul>
       </div>
     </div>
 
     <div class="edu-grid">
     <div class="edu reveal">
-      <h3>Education</h3>
+      <h3 data-i18n="edu.education">Education</h3>
       <ul>
-        <li>B.S. in Statistics — Lakeshore University, 2019</li>
+        <li data-i18n="edu.degree">B.S. in Statistics — Lakeshore University, 2019</li>
       </ul>
     </div>
 
     <div class="edu reveal">
-      <h3>Certifications</h3>
+      <h3 data-i18n="edu.certs">Certifications</h3>
       <ul>
         <li>Google Data Analytics</li>
-        <li>Databricks Data Engineer — in progress</li>
+        <li data-i18n="edu.databricks">Databricks Data Engineer — in progress</li>
       </ul>
     </div>
 
     <div class="edu reveal">
-      <h3>Additional Technical Training (Self-directed)</h3>
+      <h3 data-i18n="edu.training">Additional Technical Training (Self-directed)</h3>
       <ul>
-        <li>Core CS foundations: C++, Data Structures &amp; Algorithms</li>
-        <li>Database fundamentals &amp; distributed systems</li>
-        <li>Mathematics for Machine Learning</li>
-        <li>Applied data engineering practices</li>
+        <li data-i18n="edu.t1">Core CS foundations: C++, Data Structures &amp; Algorithms</li>
+        <li data-i18n="edu.t2">Database fundamentals &amp; distributed systems</li>
+        <li data-i18n="edu.t3">Mathematics for Machine Learning</li>
+        <li data-i18n="edu.t4">Applied data engineering practices</li>
       </ul>
     </div>
 
     <div class="edu reveal">
-      <h3>Languages</h3>
+      <h3 data-i18n="edu.languages">Languages</h3>
       <ul>
-        <li>English — Upper-intermediate</li>
-        <li>Vietnamese — Native</li>
+        <li data-i18n="edu.langEn">English — Upper-intermediate</li>
+        <li data-i18n="edu.langVi">Vietnamese — Native</li>
       </ul>
     </div>
     </div>
   </section>
 
   <section class="section" id="blog">
-    <h2 class="section-title reveal">Writing</h2>
+    <h2 class="section-title reveal" data-i18n="section.writing">Writing</h2>
     <ul class="log-list">
-      <li class="reveal"><span class="log-date">2026-05</span><a href="#">Why I rebuilt my portfolio with Terraform on Azure</a></li>
-      <li class="reveal"><span class="log-date">2026-03</span><a href="#">Notes on productionizing a churn model</a></li>
-      <li class="reveal"><span class="log-date">2026-01</span><a href="#">A practical guide to feature stores</a></li>
+      <li class="reveal"><span class="log-date">2026-05</span><a href="#" data-i18n="post.1">Why I rebuilt my portfolio with Terraform on Azure</a></li>
+      <li class="reveal"><span class="log-date">2026-03</span><a href="#" data-i18n="post.2">Notes on productionizing a churn model</a></li>
+      <li class="reveal"><span class="log-date">2026-01</span><a href="#" data-i18n="post.3">A practical guide to feature stores</a></li>
     </ul>
   </section>
 
@@ -241,16 +218,16 @@
 <footer class="footer" id="contact">
   <div class="footer-inner">
     <div class="footer-text reveal">
-      <h2>Let's talk</h2>
-      <p>Open to data engineering and analytics roles.</p>
-      <a class="footer-email" href="mailto:ndminh206@gmail.com">Send me email</a>
+      <h2 data-i18n="footer.title">Let's talk</h2>
+      <p data-i18n="footer.sub">Open to data engineering and analytics roles.</p>
+      <a class="footer-email" href="mailto:minh@example.com">minh@example.com</a>
     </div>
     <div class="footer-links reveal">
       <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
       <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
-  <p class="visitor-count">Visitors: <span id="visitorCount">—</span></p>
+  <p class="visitor-count"><span data-i18n="footer.visitors">Visitors:</span> <span id="visitorCount">—</span></p>
 </footer>
 
 <script src="script.js"></script>
