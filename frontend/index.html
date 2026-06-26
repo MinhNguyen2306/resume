@@ -220,16 +220,39 @@
     <div class="footer-text reveal">
       <h2 data-i18n="footer.title">Let's talk</h2>
       <p data-i18n="footer.sub">Open to data engineering and analytics roles.</p>
-      <a class="footer-email" href="mailto:minh@example.com">minh@example.com</a>
+      <button type="button" class="btn btn-primary footer-contact-btn" id="openContact" data-i18n="contact.open">Contact me</button>
     </div>
     <div class="footer-links reveal">
-      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://github.com/MinhNguyen2306" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/minh-duc-nguyen23/" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
   <p class="visitor-count"><span data-i18n="footer.visitors">Visitors:</span> <span id="visitorCount">—</span></p>
 </footer>
 
+<!-- Contact modal -->
+<div class="contact-overlay" id="contactOverlay" hidden>
+  <div class="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contactHeading">
+    <button type="button" class="contact-close" id="closeContact" aria-label="Close">&times;</button>
+    <h2 id="contactHeading" data-i18n="contact.heading">Send a message</h2>
+    <p class="contact-desc" data-i18n="contact.desc">I'll get your message straight to my inbox.</p>
+    <form id="contactForm">
+      <label for="cf-email" data-i18n="contact.emailLabel">Your email</label>
+      <input type="email" id="cf-email" name="email" required maxlength="150" autocomplete="email" placeholder="you@example.com">
+
+      <label for="cf-subject" data-i18n="contact.subjectLabel">Subject</label>
+      <input type="text" id="cf-subject" name="subject" required maxlength="150" autocomplete="off">
+
+      <label for="cf-message" data-i18n="contact.contentLabel">Content</label>
+      <textarea id="cf-message" name="message" required rows="6" maxlength="3000"></textarea>
+
+      <button type="submit" class="btn btn-primary contact-submit" id="contactSubmit" data-i18n="contact.send">Send</button>
+      <p class="contact-status" id="contactStatus" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

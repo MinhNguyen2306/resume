@@ -80,6 +80,17 @@
       "footer.title": "Cùng trò chuyện",
       "footer.sub": "Sẵn sàng cho các vị trí data engineering và phân tích.",
       "footer.visitors": "Lượt truy cập:",
+      "contact.open": "Liên hệ với tôi",
+      "contact.heading": "Gửi tin nhắn",
+      "contact.desc": "Tin nhắn sẽ được gửi thẳng vào hộp thư của tôi.",
+      "contact.emailLabel": "Email của bạn",
+      "contact.subjectLabel": "Tiêu đề",
+      "contact.contentLabel": "Nội dung",
+      "contact.send": "Gửi",
+      "contact.sending": "Đang gửi…",
+      "contact.success": "Đã gửi tin nhắn — cảm ơn bạn!",
+      "contact.error": "Có lỗi xảy ra. Vui lòng thử lại hoặc email trực tiếp cho tôi.",
+      "contact.notConfigured": "Email chưa được cấu hình. Hãy thêm khóa EmailJS vào script.js.",
 
       "rfm.crumb": "Phân khúc khách hàng — Phân tích RFM",
       "rfm.title": "Phân khúc khách hàng<br>Phân tích RFM",
@@ -586,5 +597,113 @@
       count = Math.floor(Math.random() * 50) + 120;
     }
     visitorCountEl.textContent = count;
+  }
+
+  /* ----------------------------------------
+     Contact form modal (EmailJS)
+     ── SETUP: replace the 3 placeholder strings below with the
+        values from your EmailJS dashboard, then it works.
+  ---------------------------------------- */
+  var EMAILJS_PUBLIC_KEY = "_35acaZlCfbSRdszu";
+  var EMAILJS_SERVICE_ID = "service_yagzp91";
+  var EMAILJS_TEMPLATE_ID = "template_2nx3jqk";
+
+  var openContactBtn = document.getElementById("openContact");
+  var contactOverlay = document.getElementById("contactOverlay");
+
+  if (openContactBtn && contactOverlay) {
+    var closeContactBtn = document.getElementById("closeContact");
+    var contactForm = document.getElementById("contactForm");
+    var contactStatus = document.getElementById("contactStatus");
+    var contactSubmit = document.getElementById("contactSubmit");
+    var subjectInput = document.getElementById("cf-subject");
+    var emailInput = document.getElementById("cf-email");
+    var lastFocused = null;
+
+    // Initialise EmailJS once the library has loaded.
+    if (window.emailjs && EMAILJS_PUBLIC_KEY.indexOf("YOUR_") !== 0) {
+      try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch (e) {}
+    }
+
+    var t = function (key, fallback) {
+      var lang = document.documentElement.getAttribute("lang") === "vi" ? "vi" : "en";
+      if (lang === "vi" && I18N.vi[key]) return I18N.vi[key];
+      return fallback;
+    };
+
+    var openModal = function () {
+      lastFocused = document.activeElement;
+      contactOverlay.hidden = false;
+      document.body.style.overflow = "hidden";
+      if (emailInput) emailInput.focus();
+    };
+    var closeModal = function () {
+      contactOverlay.hidden = true;
+      document.body.style.overflow = "";
+      if (contactStatus) {
+        contactStatus.textContent = "";
+        contactStatus.className = "contact-status";
+      }
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    };
+
+    openContactBtn.addEventListener("click", openModal);
+    if (closeContactBtn) closeContactBtn.addEventListener("click", closeModal);
+
+    // Click outside the modal closes it.
+    contactOverlay.addEventListener("click", function (e) {
+      if (e.target === contactOverlay) closeModal();
+    });
+    // Esc closes it.
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && !contactOverlay.hidden) closeModal();
+    });
+
+    if (contactForm) {
+      contactForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        if (!window.emailjs || EMAILJS_PUBLIC_KEY.indexOf("YOUR_") === 0) {
+          contactStatus.textContent = t(
+            "contact.notConfigured",
+            "Email isn't configured yet. Add your EmailJS keys in script.js."
+          );
+          contactStatus.className = "contact-status is-error";
+          return;
+        }
+
+        contactSubmit.disabled = true;
+        contactStatus.className = "contact-status";
+        contactStatus.textContent = t("contact.sending", "Sending…");
+
+        var emailVal = document.getElementById("cf-email").value;
+        var params = {
+          title: subjectInput.value,
+          subject: subjectInput.value,
+          message: document.getElementById("cf-message").value,
+          email: emailVal,
+          name: emailVal.split("@")[0],
+          time: new Date().toLocaleString()
+        };
+
+        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params).then(
+          function () {
+            contactStatus.textContent = t("contact.success", "Message sent — thank you!");
+            contactStatus.className = "contact-status is-success";
+            contactForm.reset();
+            contactSubmit.disabled = false;
+            setTimeout(closeModal, 1800);
+          },
+          function () {
+            contactStatus.textContent = t(
+              "contact.error",
+              "Something went wrong. Please try again or email me directly."
+            );
+            contactStatus.className = "contact-status is-error";
+            contactSubmit.disabled = false;
+          }
+        );
+      });
+    }
   }
 })();
