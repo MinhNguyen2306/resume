@@ -954,3 +954,120 @@ a {
 @media (max-width: 480px) {
   .results-grid { grid-template-columns: 1fr; }
 }
+/* ============================================
+   Contact form modal
+   ============================================ */
+.footer-contact-btn {
+  margin-top: 1.25rem;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  animation: contact-fade 0.2s ease;
+}
+.contact-overlay[hidden] { display: none; }
+
+@keyframes contact-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.contact-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 2rem;
+  animation: contact-rise 0.25s ease;
+}
+
+@keyframes contact-rise {
+  from { transform: translateY(12px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.contact-close {
+  position: absolute;
+  top: 0.9rem;
+  right: 1rem;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink-dim);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.contact-close:hover { color: var(--ink); background: var(--line-soft); }
+
+.contact-modal h2 {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  margin: 0 0 0.4rem;
+}
+.contact-desc {
+  color: var(--ink-dim);
+  font-size: 0.92rem;
+  margin: 0 0 1.4rem;
+}
+
+.contact-modal label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-dim);
+  margin: 0 0 0.4rem;
+}
+.contact-modal input,
+.contact-modal textarea {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  margin-bottom: 1.1rem;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  resize: vertical;
+  transition: border-color 0.15s ease;
+}
+.contact-modal input:focus,
+.contact-modal textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.contact-submit {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+.contact-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.contact-status {
+  margin: 0.9rem 0 0;
+  font-size: 0.88rem;
+  min-height: 1.2em;
+}
+.contact-status.is-success { color: var(--accent); }
+.contact-status.is-error { color: #ff6b6b; }
