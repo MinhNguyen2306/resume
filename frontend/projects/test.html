@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
+<title>KPLUS Lakehouse Pipeline | Minh Nguyen</title>
+<meta name="description" content="Case study: Building a Bronze/Silver/Gold Iceberg lakehouse on MinIO with PySpark, Hive Metastore, and a Grafana dashboard for content viewing behavior analysis.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("mn_theme");
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+<style>
+  /* ── Tech Stack Section ─────────────────────────────────────── */
+  .techstack-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .tech-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: var(--surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    transition: border-color 0.2s, transform 0.2s;
+    min-width: 80px;
+  }
+
+  .tech-card:hover {
+    border-color: var(--accent, #7c6ef7);
+    transform: translateY(-2px);
+  }
+
+  .tech-card img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+
+  .tech-card span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted, #9ca3af);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  [data-theme="light"] .tech-card img.invert-light {
+    filter: invert(1);
+  }
+
+  /* ── Segment Table ──────────────────────────────────────────── */
+  .segment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.88rem;
+  }
+
+  .segment-table th {
+    background: var(--surface, rgba(255,255,255,0.04));
+    color: var(--text-muted, #9ca3af);
+    padding: 8px 14px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+  }
+
+  .segment-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.05));
+    vertical-align: middle;
+  }
+
+  .segment-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .seg-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .seg-green  { background: rgba(134,239,172,0.12); color: #86efac; }
+  .seg-blue   { background: rgba(125,211,252,0.12); color: #7dd3fc; }
+  .seg-yellow { background: rgba(253,224,71,0.12);  color: #fde047; }
+  .seg-orange { background: rgba(251,146,60,0.12);  color: #fb923c; }
+  .seg-red    { background: rgba(248,113,113,0.12); color: #f87171; }
+  .seg-gray   { background: rgba(148,163,184,0.12); color: #94a3b8; }
+
+  /* ── Error Cards ────────────────────────────────────────────── */
+  .error-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .error-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-left: 3px solid;
+  }
+
+  .error-card.red   { border-color: #f87171; background: rgba(248,113,113,0.05); }
+  .error-card.green { border-color: #34d399; background: rgba(52,211,153,0.05); }
+
+  .error-card .err-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+  }
+
+  .error-card.red   .err-title { color: #f87171; }
+  .error-card.green .err-title { color: #34d399; }
+
+  .error-card p {
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  /* ── Technique Pills ─────────────────────────────────────────── */
+  .technique-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .technique-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 8px;
+  }
+
+  .technique-item code {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .technique-item p {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <a href="../index.html#top" class="nav-logo"><span class="accent">Minh Nguyen</span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="navMenu" class="nav-menu">
+      <a href="../index.html#projects" data-i18n="nav.projects">Projects</a>
+      <a href="../index.html#skills" data-i18n="nav.skills">Skills</a>
+      <a href="../index.html#resume" data-i18n="nav.resume">Resume</a>
+      <a href="../index.html#blog" data-i18n="nav.writing">Writing</a>
+      <a href="../index.html#contact" class="nav-cta" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-vi">VI</span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="project-hero">
+    <p class="breadcrumb"><a href="../index.html#projects" data-i18n="nav.projects">Projects</a> / <span data-i18n="kplus.crumb">KPLUS Lakehouse Pipeline</span></p>
+    <span class="idx reveal">[5]</span>
+    <h1 class="reveal" data-i18n-html="kplus.title">KPLUS Lakehouse<br>Data Pipeline</h1>
+    <p class="summary reveal" data-i18n="kplus.summary">An end-to-end streaming lakehouse ingesting 7.7 GiB of KPLUS viewing logs through Bronze → Silver → Gold Iceberg layers — surfacing content behavior insights via a Grafana dashboard connected to MySQL.</p>
+
+    <ul class="project-meta reveal">
+      <li>PySpark</li><li>Apache Iceberg</li><li>MinIO</li><li>Hive Metastore</li><li>MySQL</li><li>Grafana</li><li>Docker</li>
+    </ul>
+
+    <div class="project-actions reveal">
+      <a href="#" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="kplus.github">View on GitHub →</a>
+      <a href="../index.html#projects" class="btn btn-ghost" data-i18n="kplus.back">← Back to projects</a>
+    </div>
+  </section>
+
+  <div class="project-body">
+
+    <!-- ── Tech Stack ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.techH">Tech stack</h2>
+      <div class="techstack-grid">
+        <div class="tech-card">
+          <img src="../assets/icons/pyspark.svg" alt="PySpark">
+          <span>PySpark</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/iceberg.svg" alt="Apache Iceberg">
+          <span>Iceberg</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/minio.svg" alt="MinIO">
+          <span>MinIO</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/hive.svg" alt="Hive Metastore">
+          <span>Hive</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/docker.svg" alt="Docker">
+          <span>Docker</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/mysql.svg" alt="MySQL">
+          <span>MySQL</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/grafana.svg" alt="Grafana">
+          <span>Grafana</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/python.svg" alt="Python">
+          <span>Python</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── The problem ─────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.problemH">The problem</h2>
+      <p data-i18n="kplus.problemP1">KPLUS generates daily JSON viewing logs — each file containing hundreds of thousands of raw Contract × MAC × AppName × TotalDuration events. The data sat in flat files with no way to track content consumption trends, identify heavy viewers, or answer questions like "which content category dominates across regions?"</p>
+      <p style="margin-top:12px" data-i18n="kplus.problemP2">The goal was to build a reliable, incremental pipeline that could ingest these files day by day — with CDC checkpointing to avoid re-processing — and produce clean aggregated metrics ready for a business dashboard.</p>
+
+      <div class="shot-frame" style="margin-top:20px">
+        <img src="../assets/icons/kplus-drawio.png" alt="draw.io architecture diagram of the KPLUS lakehouse pipeline — MinIO raw bucket, Bronze/Silver/Gold Iceberg tables, Hive Metastore catalog, MySQL serving layer, and Grafana dashboard" loading="lazy">
+        <p class="shot-caption" data-i18n="kplus.archShotCap">Full pipeline architecture, sketched in draw.io before implementation.</p>
+      </div>
+    </section>
+
+    <!-- ── Data model ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.dataH">Data model</h2>
+      <p data-i18n="kplus.dataP1">29 daily JSON files (7.7 GiB total) ingested from MinIO and modelled as three Apache Iceberg layers — Bronze, Silver, Gold — cataloged through a Hive Metastore backed by Postgres, with the final aggregates exported to a MySQL serving table.</p>
+
+      <p style="margin-top:16px; font-size:0.88rem; color:var(--text-muted,#9ca3af)" data-i18n="kplus.schemaLabel">Pipeline</p>
+      <pre style="margin-top:8px; padding:14px 18px; background:var(--surface,rgba(255,255,255,0.04)); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:0.82rem; overflow-x:auto"><code>raw/ (MinIO) ──→ Bronze (Iceberg) ──→ Silver (Iceberg) ──→ Gold (Iceberg) ──→ MySQL ──→ Grafana</code></pre>
+
+      <table class="segment-table" style="margin-top:20px">
+        <tr>
+          <th data-i18n="kplus.th.table">Table</th>
+          <th data-i18n="kplus.th.rows">Partitioned by</th>
+          <th data-i18n="kplus.th.desc">Description</th>
+          <th data-i18n="kplus.th.type">Layer</th>
+        </tr>
+        <tr>
+          <td><code>kplus.bronze.events</code></td>
+          <td><code>execution_date</code></td>
+          <td data-i18n="kplus.row.bronze">Raw Contract · Mac · TotalDuration · AppName events, tagged with source_file</td>
+          <td><span class="seg-badge seg-orange" data-i18n="kplus.type.bronze">Bronze</span></td>
+        </tr>
+        <tr>
+          <td><code>kplus.silver.events</code></td>
+          <td><code>execution_day</code></td>
+          <td data-i18n="kplus.row.silver">AppName pivoted into 5 content categories, summed per contract, plus TotalDevices</td>
+          <td><span class="seg-badge seg-gray" data-i18n="kplus.type.silver">Silver</span></td>
+        </tr>
+        <tr>
+          <td><code>kplus.gold.app_usage</code></td>
+          <td><code>execution_day</code></td>
+          <td data-i18n="kplus.row.gold">Per-contract MostWatch, Taste, and Active labels — ready for serving</td>
+          <td><span class="seg-badge seg-yellow" data-i18n="kplus.type.gold">Gold</span></td>
+        </tr>
+        <tr>
+          <td><code>cdc_checkpoint</code></td>
+          <td>—</td>
+          <td data-i18n="kplus.row.cdc">MySQL table tracking last_offset per source file for incremental re-runs</td>
+          <td><span class="seg-badge seg-green" data-i18n="kplus.type.derived">Control</span></td>
+        </tr>
+        <tr>
+          <td><code>summary_behavior_data</code></td>
+          <td>—</td>
+          <td data-i18n="kplus.row.serving">MySQL serving table — UPSERTed from gold, queried directly by Grafana</td>
+          <td><span class="seg-badge seg-green" data-i18n="kplus.type.derived">Serving</span></td>
+        </tr>
+      </table>
+
+      <h3 style="margin-top:28px; margin-bottom:8px; font-size:0.95rem" data-i18n="kplus.fkH">Write &amp; schema challenges encountered</h3>
+      <div class="error-cards">
+        <div class="error-card red">
+          <p class="err-title">NoAuthWithAWSException — S3A credentials closed mid-write</p>
+          <p><span data-i18n="kplus.fk1a">Triggered by pressing Ctrl+C during a long Iceberg write — SparkContext shut down before the commit finished, corrupting the credential provider list. Fix:</span> <span data-i18n="kplus.fk1b">never interrupt a running writeTo() job; let it finish or kill the whole process cleanly.</span></p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">INSERT_COLUMN_ARITY_MISMATCH — new AppName, new column</p>
+          <p><span data-i18n="kplus.fk2a">File</span> <code>20220401.json</code> <span data-i18n="kplus.fk2b">only contains KPLUS → Truyen_Hinh. File</span> <code>20220402.json</code> <span data-i18n="kplus.fk2c">adds SPORT → The_Thao, which silver didn't have yet. Resolved with a schema diff that auto-runs</span> <code>ALTER TABLE ... ADD COLUMN</code> <span data-i18n="kplus.fk2d">before each append.</span></p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">BatchUpdateException — duplicate key on MySQL re-run</p>
+          <p><span data-i18n="kplus.fk3a">Spark JDBC's</span> <code>mode("append")</code> <span data-i18n="kplus.fk3b">has no UPSERT support, so re-running the export for the same day threw a duplicate-key error. Used a two-step pattern: write to a staging table via JDBC, then</span> <code>INSERT ... ON DUPLICATE KEY UPDATE</code> <span data-i18n="kplus.fk3c">via pymysql to merge.</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Approach ────────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.approachH">Approach</h2>
+      <p data-i18n="kplus.appP">All transformation logic runs in PySpark locally; Iceberg handles table format, Hive Metastore handles the catalog, and four scripts move data one layer at a time.</p>
+
+      <h3 style="margin-top:20px; margin-bottom:8px; font-size:0.95rem" data-i18n="kplus.step1H">Step 1 — CDC Ingest (bronze_ingest.py)</h3>
+      <p><span data-i18n="kplus.step1a">Each run is user-driven — pick a source date and a row count. The script reads</span> <code>last_offset</code> <span data-i18n="kplus.step1b">from MySQL's</span> <code>cdc_checkpoint</code> <span data-i18n="kplus.step1c">table, streams that slice of the JSON via boto3, then appends to Iceberg bronze:</span></p>
+      <ul style="margin-top:8px">
+        <li><strong data-i18n="kplus.m1l">Offset tracking</strong> — <span data-i18n="kplus.m1">checkpoint saved before the write begins, so a failed write never duplicates a batch on retry</span></li>
+        <li><strong data-i18n="kplus.m2l">Source tagging</strong> — <span data-i18n="kplus.m2">every row tagged with source_file so multiple dates can coexist in one table</span></li>
+        <li><strong data-i18n="kplus.m3l">Schema evolution</strong> — <span data-i18n="kplus.m3">merge-schema=true plus dynamic ALTER TABLE when a new AppName appears</span></li>
+      </ul>
+      <p style="margin-top:10px"><span data-i18n="kplus.step1d">Re-running the same date resumes from the saved offset — e.g. run 1 reads rows 0–39,999 and checkpoints at 40,000; run 2 reads 40,000–79,999.</span></p>
+
+      <h3 style="margin-top:24px; margin-bottom:8px; font-size:0.95rem" data-i18n="kplus.step2H">Step 2 — Transform &amp; Aggregate (silver / gold)</h3>
+      <p><span data-i18n="kplus.step2a">silver_ingest.py maps</span> <code>AppName</code> <span data-i18n="kplus.step2b">→ 5 content categories, pivots and sums TotalDuration per Contract, and counts distinct MACs as TotalDevices. gold_ingest.py then reads silver and computes per-contract behavior labels via</span> <code>CASE WHEN</code> <span data-i18n="kplus.step2c">logic:</span></p>
+
+      <table class="segment-table" style="margin-top:16px">
+        <tr><th data-i18n="kplus.th.segment">Label</th><th data-i18n="kplus.th.condition">Logic</th></tr>
+        <tr><td><span class="seg-badge seg-green">MostWatch</span></td><td data-i18n="kplus.label1">Dominant category by summed TotalDuration</td></tr>
+        <tr><td><span class="seg-badge seg-blue">Taste</span></td><td data-i18n="kplus.label2">All non-zero categories concatenated (e.g. Truyen_Hinh-Phim_Truyen)</td></tr>
+        <tr><td><span class="seg-badge seg-orange">Active</span></td><td><code>High</code> if watched on &gt;4 distinct days, else <code>Low</code></td></tr>
+      </table>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="kplus.hiveH">Where Hive Metastore fits in</h3>
+      <p><span data-i18n="kplus.hiveP1">Hive Metastore</span> <strong data-i18n="kplus.hiveBold">does not sit on the data path</strong><span data-i18n="kplus.hiveP1b">. Data flows raw → bronze → silver → gold → MySQL and never passes through Hive; it sits beside the pipeline as a registry. Every time a Spark job creates or appends an Iceberg table, the actual Parquet files land on MinIO, while a metadata pointer ("this table exists, here's its schema, here's the current snapshot") is registered in Hive — which itself persists that registry in Postgres.</span></p>
+      <p style="margin-top:10px; font-size:0.88rem; font-style:italic; color:var(--text-muted,#9ca3af)" data-i18n="kplus.hiveAnalogy">📚 MinIO is the library's bookshelf — it holds the actual books. Hive Metastore is the card catalog — it tells you which shelf, but holds no pages itself.</p>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="kplus.sqlH">Key techniques used</h3>
+      <div class="technique-list">
+        <div class="technique-item">
+          <code>writeTo().append() / .create()</code>
+          <p data-i18n="kplus.sql1">Try-append-else-create pattern handles both first-run table creation and subsequent incremental appends in one function.</p>
+        </div>
+        <div class="technique-item">
+          <code>ALTER TABLE ... ADD COLUMN</code>
+          <p data-i18n="kplus.sql2">Schema diff between the incoming DataFrame and the existing Iceberg table columns, auto-adding new ones before write.</p>
+        </div>
+        <div class="technique-item">
+          <code>SHOW COLUMNS FROM ...</code>
+          <p data-i18n="kplus.sql3">Reads the live MySQL column order at runtime so the Spark DataFrame is reordered to match — avoids silently inserting values into the wrong columns.</p>
+        </div>
+        <div class="technique-item">
+          <code>INSERT ... ON DUPLICATE KEY UPDATE</code>
+          <p><span data-i18n="kplus.sql4a">Two-step temp-table UPSERT — Spark JDBC writes to a staging table (safe to overwrite, no PK), then pymysql merges it into the primary-keyed serving table via</span> <code>summary_behavior_data_tmp</code>.</p>
+        </div>
+        <div class="technique-item">
+          <code>boto3 + pandas.iloc[offset:offset+N]</code>
+          <p data-i18n="kplus.sql5">Streams only the requested row slice from the daily JSON instead of loading the whole file into Spark, keeping each batch run small and resumable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Grafana dashboard ───────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.pbiH">Grafana dashboard</h2>
+      <p><span data-i18n="kplus.pbiPa">Two-row dashboard connected directly to the MySQL serving table via the MySQL data source connector.</span></p>
+
+      <table class="segment-table" style="margin-top:16px">
+        <tr><th data-i18n="kplus.th.page">Row</th><th data-i18n="kplus.th.audience">Focus</th><th data-i18n="kplus.th.visuals">Key visuals</th></tr>
+        <tr>
+          <td>Overview</td>
+          <td data-i18n="kplus.aud.exec">KPI snapshot</td>
+          <td data-i18n="kplus.vis1">3 stat cards (Total Contracts, TotalDevices, Total Days) · MostWatch pie chart · stacked bar trending by day · top-10 contracts table</td>
+        </tr>
+        <tr>
+          <td>Customer Behavior Detail</td>
+          <td data-i18n="kplus.aud.detail">Category-level breakdown</td>
+          <td data-i18n="kplus.vis2">Stacked bar — TotalDuration by category per day · horizontal bar — top-10 Taste combinations · avg duration per contract · TotalDevices by day</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ── Screenshot ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.shotH">Screenshot</h2>
+      <div class="shot-frame">
+        <img src="../assets/icons/gra_1.png" alt="Grafana Overview row — KPI stat cards, MostWatch pie chart, trending stacked bar chart, top contracts table" loading="lazy">
+        <div style="height:24px"></div>
+        <img src="../assets/icons/gra_2.png" alt="Grafana Customer Behavior Detail row — TotalDuration by category, taste distribution, average duration, devices by day" loading="lazy">
+        <p class="shot-caption" data-i18n="kplus.shotCap">Two-row Grafana dashboard — Overview (top) and Customer Behavior Detail (bottom).</p>
+      </div>
+    </section>
+
+    <!-- ── Results ─────────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.resultsH">Results</h2>
+      <div class="results-grid">
+        <div class="result-stat">
+          <span class="num">7.7 GiB</span>
+          <span class="label" data-i18n="kplus.r1">source data ingested across 29 daily JSON files</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">3</span>
+          <span class="label" data-i18n="kplus.r2">Iceberg lakehouse layers (Bronze / Silver / Gold)</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">5</span>
+          <span class="label" data-i18n="kplus.r3">content categories mapped from AppName</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">8</span>
+          <span class="label" data-i18n="kplus.r4">Grafana panels across 2 dashboard rows</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── What I'd do differently ─────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="kplus.diffH">What I'd do differently</h2>
+      <p><span data-i18n="kplus.diffPa">Wire an</span> <code>Airflow</code> <span data-i18n="kplus.diffPb">DAG to orchestrate the full bronze → silver → gold → export chain automatically — currently each script is run manually in sequence. The DAG is designed; execution is the next step.</span></p>
+      <p style="margin-top:12px" data-i18n="kplus.diffP2">Also add data quality checks between layers — e.g. assert row count in silver ≥ distinct contracts in bronze, and flag unexpected AppName values before they silently land as an Error category.</p>
+    </section>
+
+  </div>
+
+  <nav class="project-nav">
+    <a href="../index.html#projects" class="project-nav-link prev">
+      <span class="dir" data-i18n="cs.navBack">← Back to all projects</span>
+    </a>
+    <a href="../index.html#projects" class="project-nav-link next">
+      <span class="dir" data-i18n="cs.navNext">Next project →</span>
+    </a>
+  </nav>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div class="footer-text reveal">
+      <h2 data-i18n="footer.title">Let's talk</h2>
+      <p data-i18n="footer.sub">Open to data engineering and analytics roles.</p>
+      <a class="footer-email" href="mailto:ndminh206@gmail.com">ndminh206@gmail.com</a>
+    </div>
+    <div class="footer-links reveal">
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <p class="visitor-count"><span data-i18n="footer.visitors">Visitors:</span> <span id="visitorCount">—</span></p>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>
