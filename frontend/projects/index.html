@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
+<title>Projects — Minh Nguyen</title>
+<meta name="description" content="Data engineering and analytics project case studies by Minh Nguyen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("mn_theme");
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <a href="../index.html#top" class="nav-logo"><span class="accent">Minh Nguyen</span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="navMenu" class="nav-menu">
+      <a href="index.html" data-i18n="nav.projects">Projects</a>
+      <a href="../index.html#skills" data-i18n="nav.skills">Skills</a>
+      <a href="../index.html#resume" data-i18n="nav.resume">Resume</a>
+      <a href="../index.html#blog" data-i18n="nav.writing">Writing</a>
+      <a href="../index.html#contact" class="nav-cta" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-vi">VI</span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="section" id="projects">
+    <p class="breadcrumb reveal"><a href="../index.html#top" data-i18n="nav.home">Home</a> / <span data-i18n="section.projects">Projects</span></p>
+    <h2 class="section-title reveal"><span class="idx">[ ]</span> <span data-i18n="section.projects">Projects</span></h2>
+    <p class="section-lede reveal" data-i18n="projects.lede">A selection of data engineering and analytics work, written up as case studies.</p>
+
+    <div class="project-grid">
+
+      <article class="project-card reveal">
+        <p class="idx">[0]</p>
+        <h3><a href="customer-segmentation.html" class="project-title-link" data-i18n="proj.rfm.title">Customer Segmentation — RFM Analysis</a></h3>
+        <p data-i18n="proj.rfm.desc">Segmenting 4.35M customer contracts into 9 actionable cohorts with SQL-based RFM scoring, delivered as a 4-page Power BI dashboard for the CS team.</p>
+        <ul class="tag-list">
+          <li>Python</li><li>SQL</li><li>Supabase</li><li>Power BI</li>
+        </ul>
+        <div class="card-links">
+          <a href="customer-segmentation.html" class="card-link card-link-primary" data-i18n="card.viewCase">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener" data-i18n="card.github">GitHub ↗</a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[1]</p>
+        <h3><a href="Kplus-lakehouse.html" class="project-title-link" data-i18n="proj.kplus.title">KPLUS Lakehouse Pipeline</a></h3>
+        <p data-i18n="proj.kplus.desc">Streaming lakehouse ingesting 7.7 GiB of viewing logs through Bronze/Silver/Gold Iceberg layers on MinIO, surfaced via a Grafana dashboard.</p>
+        <ul class="tag-list">
+          <li>PySpark</li><li>Iceberg</li><li>MinIO</li><li>Grafana</li>
+        </ul>
+        <div class="card-links">
+          <a href="Kplus-lakehouse.html" class="card-link card-link-primary" data-i18n="card.viewCase">View case study →</a>
+          <a href="#" class="card-link" target="_blank" rel="noopener" data-i18n="card.github">GitHub ↗</a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[2]</p>
+        <h3><a href="azure-lakehouse.html" class="project-title-link" data-i18n="proj.azure.title">Azure Lakehouse Pipeline</a></h3>
+        <p data-i18n="proj.azure.desc">End-to-end Azure lakehouse turning FPT Play OTT search logs into meaningful insights for the analytics team.</p>
+        <ul class="tag-list">
+          <li>Azure Databricks</li><li>Delta Lake</li><li>Synapse</li><li>Superset</li>
+        </ul>
+        <div class="card-links">
+          <a href="azure-lakehouse.html" class="card-link card-link-primary" data-i18n="card.viewCase">View case study →</a>
+          <a href="https://github.com/MinhNguyen2306" class="card-link" target="_blank" rel="noopener" data-i18n="card.github">GitHub ↗</a>
+        </div>
+      </article>
+
+      <article class="project-card reveal">
+        <p class="idx">[3]</p>
+        <h3 class="project-title-link" data-i18n="proj.upcoming.title">Upcoming</h3>
+        <div class="card-links">
+          <span class="card-link card-ongoing" data-i18n="card.ongoing">Ongoing project</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div class="footer-text reveal">
+      <h2 data-i18n="footer.title">Let's talk</h2>
+      <p data-i18n="footer.sub">Open to data engineering and analytics roles.</p>
+      <a class="footer-email" href="mailto:ndminh206@gmail.com">ndminh206@gmail.com</a>
+    </div>
+    <div class="footer-links reveal">
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <p class="visitor-count"><span data-i18n="footer.visitors">Visitors:</span> <span id="visitorCount">—</span></p>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>
