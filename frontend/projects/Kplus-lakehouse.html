@@ -264,12 +264,17 @@
 
       <div class="shot-frame" style="margin-top:20px">
         <img src="../assets/icons/kplus-drawio.png" alt="draw.io architecture diagram of the KPLUS lakehouse pipeline — MinIO raw bucket, Bronze/Silver/Gold Iceberg tables, Hive Metastore catalog, MySQL serving layer, and Grafana dashboard" loading="lazy">
+        <p class="shot-caption" data-i18n="kplus.archShotCap">Full pipeline architecture, sketched in draw.io before implementation.</p>
       </div>
     </section>
 
     <!-- ── Data model ──────────────────────────────────────────── -->
     <section class="project-section reveal">
       <h2 data-i18n="kplus.dataH">Data model</h2>
+      <p data-i18n="kplus.dataP1">29 daily JSON files (7.7 GiB total) ingested from MinIO and modelled as three Apache Iceberg layers — Bronze, Silver, Gold — cataloged through a Hive Metastore backed by Postgres, with the final aggregates exported to a MySQL serving table.</p>
+
+      <p style="margin-top:16px; font-size:0.88rem; color:var(--text-muted,#9ca3af)" data-i18n="kplus.schemaLabel">Pipeline</p>
+      <pre style="margin-top:8px; padding:14px 18px; background:var(--surface,rgba(255,255,255,0.04)); border:1px solid var(--border,rgba(255,255,255,0.08)); border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:0.82rem; overflow-x:auto"><code>raw/ (MinIO) ──→ Bronze (Iceberg) ──→ Silver (Iceberg) ──→ Gold (Iceberg) ──→ MySQL ──→ Grafana</code></pre>
 
       <table class="segment-table" style="margin-top:20px">
         <tr>
@@ -342,6 +347,22 @@
         <tr><td>TND026221</td><td>0</td><td>18335</td><td>Phim_Truyen</td><td>Phim_Truyen</td><td>Low</td></tr>
         <tr><td>HUFD05523</td><td>213</td><td>11424</td><td>Phim_Truyen</td><td>Phim_Truyen-Truye…</td><td>Low</td></tr>
       </table>
+
+      <h3 style="margin-top:28px; margin-bottom:8px; font-size:0.95rem" data-i18n="kplus.fkH">Write &amp; schema challenges encountered</h3>
+      <div class="error-cards">
+        <div class="error-card red">
+          <p class="err-title">NoAuthWithAWSException — S3A credentials closed mid-write</p>
+          <p><span data-i18n="kplus.fk1a">Triggered by pressing Ctrl+C during a long Iceberg write — SparkContext shut down before the commit finished, corrupting the credential provider list. Fix:</span> <span data-i18n="kplus.fk1b">never interrupt a running writeTo() job; let it finish or kill the whole process cleanly.</span></p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">INSERT_COLUMN_ARITY_MISMATCH — new AppName, new column</p>
+          <p><span data-i18n="kplus.fk2a">File</span> <code>20220401.json</code> <span data-i18n="kplus.fk2b">only contains KPLUS → Truyen_Hinh. File</span> <code>20220402.json</code> <span data-i18n="kplus.fk2c">adds SPORT → The_Thao, which silver didn't have yet. Resolved with a schema diff that auto-runs</span> <code>ALTER TABLE ... ADD COLUMN</code> <span data-i18n="kplus.fk2d">before each append.</span></p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">BatchUpdateException — duplicate key on MySQL re-run</p>
+          <p><span data-i18n="kplus.fk3a">Spark JDBC's</span> <code>mode("append")</code> <span data-i18n="kplus.fk3b">has no UPSERT support, so re-running the export for the same day threw a duplicate-key error. Used a two-step pattern: write to a staging table via JDBC, then</span> <code>INSERT ... ON DUPLICATE KEY UPDATE</code> <span data-i18n="kplus.fk3c">via pymysql to merge.</span></p>
+        </div>
+      </div>
     </section>
 
     <!-- ── Approach ────────────────────────────────────────────── -->
@@ -371,6 +392,30 @@
       <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="kplus.hiveH">Where Hive Metastore fits in</h3>
       <p><span data-i18n="kplus.hiveP1">Hive Metastore</span> <strong data-i18n="kplus.hiveBold">does not sit on the data path</strong><span data-i18n="kplus.hiveP1b">. Data flows raw → bronze → silver → gold → MySQL and never passes through Hive; it sits beside the pipeline as a registry. Every time a Spark job creates or appends an Iceberg table, the actual Parquet files land on MinIO, while a metadata pointer ("this table exists, here's its schema, here's the current snapshot") is registered in Hive — which itself persists that registry in Postgres.</span></p>
       <p style="margin-top:10px; font-size:0.88rem; font-style:italic; color:var(--text-muted,#9ca3af)" data-i18n="kplus.hiveAnalogy">📚 MinIO is the library's bookshelf — it holds the actual books. Hive Metastore is the card catalog — it tells you which shelf, but holds no pages itself.</p>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="kplus.sqlH">Key techniques used</h3>
+      <div class="technique-list">
+        <div class="technique-item">
+          <code>writeTo().append() / .create()</code>
+          <p data-i18n="kplus.sql1">Try-append-else-create pattern handles both first-run table creation and subsequent incremental appends in one function.</p>
+        </div>
+        <div class="technique-item">
+          <code>ALTER TABLE ... ADD COLUMN</code>
+          <p data-i18n="kplus.sql2">Schema diff between the incoming DataFrame and the existing Iceberg table columns, auto-adding new ones before write.</p>
+        </div>
+        <div class="technique-item">
+          <code>SHOW COLUMNS FROM ...</code>
+          <p data-i18n="kplus.sql3">Reads the live MySQL column order at runtime so the Spark DataFrame is reordered to match — avoids silently inserting values into the wrong columns.</p>
+        </div>
+        <div class="technique-item">
+          <code>INSERT ... ON DUPLICATE KEY UPDATE</code>
+          <p><span data-i18n="kplus.sql4a">Two-step temp-table UPSERT — Spark JDBC writes to a staging table (safe to overwrite, no PK), then pymysql merges it into the primary-keyed serving table via</span> <code>summary_behavior_data_tmp</code>.</p>
+        </div>
+        <div class="technique-item">
+          <code>boto3 + pandas.iloc[offset:offset+N]</code>
+          <p data-i18n="kplus.sql5">Streams only the requested row slice from the daily JSON instead of loading the whole file into Spark, keeping each batch run small and resumable.</p>
+        </div>
+      </div>
     </section>
 
     <!-- ── Grafana dashboard ───────────────────────────────────── -->

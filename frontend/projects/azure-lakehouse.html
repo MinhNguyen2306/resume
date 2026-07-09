@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e12">
+<title>Azure Lakehouse Pipeline | Minh Nguyen</title>
+<meta name="description" content="Case study: An Azure Delta Lakehouse (Bronze/Silver/Gold) on Databricks + Unity Catalog with Auto Loader ingestion, ML-based Vietnamese keyword normalization, a Synapse serving layer, Superset dashboards, and Grafana pipeline monitoring.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../styles.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("mn_theme");
+      var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+      document.documentElement.setAttribute("data-theme", theme);
+    } catch (e) {}
+  })();
+</script>
+<style>
+  /* ── Tech Stack Section ─────────────────────────────────────── */
+  .techstack-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .tech-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: var(--surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    transition: border-color 0.2s, transform 0.2s;
+    min-width: 80px;
+  }
+
+  .tech-card:hover {
+    border-color: var(--accent, #7c6ef7);
+    transform: translateY(-2px);
+  }
+
+  .tech-card img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    background: transparent;
+    border-radius: 4px;
+  }
+
+  .tech-card span {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted, #9ca3af);
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  [data-theme="light"] .tech-card img.invert-light {
+    filter: invert(1);
+  }
+
+  /* ── Segment Table ──────────────────────────────────────────── */
+  .segment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.88rem;
+  }
+
+  .segment-table th {
+    background: var(--surface, rgba(255,255,255,0.04));
+    color: var(--text-muted, #9ca3af);
+    padding: 8px 14px;
+    text-align: left;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.08));
+  }
+
+  .segment-table td {
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,0.05));
+    vertical-align: middle;
+  }
+
+  .segment-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .seg-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .seg-green  { background: rgba(134,239,172,0.12); color: #86efac; }
+  .seg-blue   { background: rgba(125,211,252,0.12); color: #7dd3fc; }
+  .seg-yellow { background: rgba(253,224,71,0.12);  color: #fde047; }
+  .seg-orange { background: rgba(251,146,60,0.12);  color: #fb923c; }
+  .seg-red    { background: rgba(248,113,113,0.12); color: #f87171; }
+  .seg-gray   { background: rgba(148,163,184,0.12); color: #94a3b8; }
+  .seg-purple { background: rgba(167,139,250,0.14); color: #a78bfa; }
+
+  /* ── Error Cards ────────────────────────────────────────────── */
+  .error-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .error-card {
+    border-radius: 8px;
+    padding: 14px 16px;
+    border-left: 3px solid;
+  }
+
+  .error-card.red   { border-color: #f87171; background: rgba(248,113,113,0.05); }
+  .error-card.green { border-color: #34d399; background: rgba(52,211,153,0.05); }
+
+  .error-card .err-title {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+  }
+
+  .error-card.red   .err-title { color: #f87171; }
+  .error-card.green .err-title { color: #34d399; }
+
+  .error-card p {
+    font-size: 0.88rem;
+    margin: 0;
+  }
+
+  /* ── Technique Pills ─────────────────────────────────────────── */
+  .technique-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  .technique-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    background: var(--surface, rgba(255,255,255,0.04));
+    border: 1px solid var(--border, rgba(255,255,255,0.08));
+    border-radius: 8px;
+  }
+
+  .technique-item code {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .technique-item p {
+    margin: 0;
+    font-size: 0.88rem;
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <a href="../index.html#top" class="nav-logo"><span class="accent">Minh Nguyen</span></a>
+    <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navMenu" aria-label="Toggle navigation">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="navMenu" class="nav-menu">
+      <a href="../index.html#projects" data-i18n="nav.projects">Projects</a>
+      <a href="../index.html#skills" data-i18n="nav.skills">Skills</a>
+      <a href="../index.html#resume" data-i18n="nav.resume">Resume</a>
+      <a href="../index.html#blog" data-i18n="nav.writing">Writing</a>
+      <a href="../index.html#contact" class="nav-cta" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <button class="lang-toggle" id="langToggle" type="button" aria-label="Switch language">
+      <span class="lang-en">EN</span><span class="lang-sep">|</span><span class="lang-vi">VI</span>
+    </button>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="Switch to light theme" title="Toggle theme">
+      <svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12.1 2.2A9.8 9.8 0 0 0 12 22a9.8 9.8 0 0 0 9.8-7.1 7.8 7.8 0 0 1-9.7-12.7Z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></g></svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="project-hero">
+    <p class="breadcrumb"><a href="../index.html#projects" data-i18n="nav.projects">Projects</a> / <span data-i18n="azure.crumb">Azure Lakehouse Pipeline</span></p>
+    <span class="idx reveal">[6]</span>
+    <h1 class="reveal" data-i18n-html="azure.title">Azure Lakehouse<br>Data Pipeline</h1>
+    <p class="summary reveal" data-i18n="azure.summary">An end-to-end Azure lakehouse turning 81K raw FPT Play OTT search-log records into a star-schema warehouse — with Auto Loader incremental ingestion, ML-based Vietnamese keyword normalization, a Synapse serving layer, Superset dashboards, and Grafana pipeline monitoring.</p>
+
+    <ul class="project-meta reveal">
+      <li>Azure Databricks</li><li>Delta Lake</li><li>Unity Catalog</li><li>Auto Loader</li><li>Synapse Serverless</li><li>Superset</li><li>Grafana</li><li>PySpark</li>
+    </ul>
+
+    <div class="project-actions reveal">
+      <a href="https://github.com/MinhNguyen2306" class="btn btn-primary" target="_blank" rel="noopener" data-i18n="azure.github">View on GitHub →</a>
+      <a href="../index.html#projects" class="btn btn-ghost" data-i18n="azure.back">← Back to projects</a>
+    </div>
+  </section>
+
+  <div class="project-body">
+
+    <!-- ── Tech Stack ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.techH">Tech stack</h2>
+      <div class="techstack-grid">
+        <div class="tech-card">
+          <img src="../assets/icons/azure.svg.webp" alt="Microsoft Azure">
+          <span>Azure</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/databricks.svg" alt="Azure Databricks">
+          <span>Databricks</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/delta.svg" alt="Delta Lake">
+          <span>Delta Lake</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/synapse.svg" alt="Azure Synapse">
+          <span>Synapse</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/Superset.svg.webp" alt="Apache Superset">
+          <span>Superset</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/grafana.svg" alt="Grafana">
+          <span>Grafana</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/prometheus.svg.webp" alt="Prometheus">
+          <span>Prometheus</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/docker.svg" alt="Docker">
+          <span>Docker</span>
+        </div>
+        <div class="tech-card">
+          <img src="../assets/icons/python.svg" alt="Python">
+          <span>Python</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── The problem ─────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.problemH">The problem</h2>
+      <p data-i18n="azure.problemP1">FPT Play produces raw OTT search logs — each event a user_id × keyword × platform × network × subscription record. The keywords are messy: typos, missing Vietnamese diacritics, and noise ("doremon", "nguoi nhen", "one pice"), making it impossible to answer "which titles are actually being searched for?" without cleaning them first.</p>
+      <p style="margin-top:12px" data-i18n="azure.problemP2">The goal: port an AWS lakehouse design to Azure, build an incremental Bronze → Silver → Gold pipeline, normalize search keywords to canonical movie titles with ML, and serve analytics through a warehouse and BI dashboards — with pipeline observability on top.</p>
+
+      <div class="shot-frame" style="margin-top:20px">
+        <img src="../project/diagram.png" alt="Architecture diagram of the Azure lakehouse — ADLS Gen2, Databricks with Auto Loader, Unity Catalog, Delta medallion layers, Synapse Serverless serving, plus a local Docker stack for Superset and Grafana/Prometheus monitoring" loading="lazy">
+        <p class="shot-caption" data-i18n="azure.archShotCap">System architecture — Azure cloud pipeline plus the local Docker analytics &amp; monitoring stack.</p>
+      </div>
+
+      <div class="shot-frame" style="margin-top:20px">
+        <img src="../project/detail.png" alt="Detailed medallion data-flow — raw Parquet through Bronze customer_search, Silver customer_search_keynormalize and user_plans_map, into a Gold star schema with fact_customer_search and its dimensions" loading="lazy">
+        <p class="shot-caption" data-i18n="azure.archShotCap2">Detailed medallion flow, ending in the Gold star schema.</p>
+      </div>
+    </section>
+
+    <!-- ── Data model ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.dataH">Data model</h2>
+      <p data-i18n="azure.dataP1">81K search events land as Parquet in ADLS Gen2 and flow through three Delta Lake layers — Bronze, Silver, Gold — governed by Unity Catalog. Gold is exported to a plain ADLS path and served by Synapse Serverless SQL for BI.</p>
+
+      <div class="shot-frame" style="margin-top:20px">
+        <img src="../project/pipeline.png" alt="Databricks Job run — lakehouse_pipeline with four chained tasks (bronze_ingest, silver_ingest, gold_build, push_metrics) all succeeded in 7m 33s on a single-node cluster" loading="lazy">
+        <p class="shot-caption" data-i18n="azure.jobShotCap">The lakehouse_pipeline Databricks Job — four chained notebook tasks, fired on file arrival, all green.</p>
+      </div>
+
+      <table class="segment-table" style="margin-top:20px">
+        <tr>
+          <th data-i18n="azure.th.table">Table</th>
+          <th data-i18n="azure.th.rows">Rows</th>
+          <th data-i18n="azure.th.desc">Description</th>
+          <th data-i18n="azure.th.type">Layer</th>
+        </tr>
+        <tr>
+          <td><code>bronze.customer_search</code></td>
+          <td>81,483</td>
+          <td data-i18n="azure.row.bronze">Raw search events, Auto Loader incremental append, minimal typing</td>
+          <td><span class="seg-badge seg-orange">Bronze</span></td>
+        </tr>
+        <tr>
+          <td><code>silver.customer_search_keynormalize</code></td>
+          <td>81,469</td>
+          <td data-i18n="azure.row.silver1">Cleaned dates &amp; fields, keywords normalized to canonical titles via ML MERGE</td>
+          <td><span class="seg-badge seg-gray">Silver</span></td>
+        </tr>
+        <tr>
+          <td><code>silver.user_plans_map</code></td>
+          <td>14,778</td>
+          <td data-i18n="azure.row.silver2">Exploded userPlansMap array into plan_name / plan_source rows</td>
+          <td><span class="seg-badge seg-gray">Silver</span></td>
+        </tr>
+        <tr>
+          <td><code>gold.fact_customer_search</code></td>
+          <td>81,469</td>
+          <td data-i18n="azure.row.fact">Central fact — surrogate keys to 5 dimensions, plus hour_of_day</td>
+          <td><span class="seg-badge seg-yellow">Gold</span></td>
+        </tr>
+        <tr>
+          <td><code>gold.bridge_user_plan</code></td>
+          <td>8,437</td>
+          <td data-i18n="azure.row.bridge">Resolves the many-to-many between users and subscriptions</td>
+          <td><span class="seg-badge seg-yellow">Gold</span></td>
+        </tr>
+        <tr>
+          <td><code>gold_export/ + Synapse views</code></td>
+          <td>—</td>
+          <td data-i18n="azure.row.serving">Plain Delta export queried in place by Synapse OPENROWSET, read by Superset</td>
+          <td><span class="seg-badge seg-green">Serving</span></td>
+        </tr>
+      </table>
+
+      <p style="margin-top:12px; font-size:0.82rem; color:var(--text-muted,#9ca3af)" data-i18n="azure.dimsNote">Plus six dimensions — dim_date, dim_platform, dim_category, dim_network, dim_user (SCD Type 1), and dim_subscription — completing the star schema.</p>
+
+      <h3 style="margin-top:28px; margin-bottom:8px; font-size:0.95rem" data-i18n="azure.sampleH">What the data actually looks like at each step</h3>
+
+      <p style="margin-top:16px; font-size:0.85rem; color:var(--text-muted,#9ca3af)"><span class="seg-badge seg-blue">Raw → Bronze</span> <span data-i18n="azure.sample1Cap">Ingested as-is; only datetime typed (two locale formats reconciled)</span></p>
+      <table class="segment-table" style="margin-top:8px; font-size:0.8rem">
+        <tr><th>keyword</th><th>platform</th><th>networkType</th><th>proxy_isp</th><th>action</th></tr>
+        <tr><td>doremon</td><td>smarttv-sony-android</td><td>wifi</td><td>fpt</td><td>search</td></tr>
+        <tr><td>lưu ly mỹ nhân sát</td><td>ios</td><td>WIFI</td><td>vnpt</td><td>search</td></tr>
+        <tr><td>one pice</td><td>android</td><td>wifi</td><td>viettel</td><td>search</td></tr>
+      </table>
+
+      <p style="margin-top:20px; font-size:0.85rem; color:var(--text-muted,#9ca3af)"><span class="seg-badge seg-gray">Bronze → Silver</span> <span data-i18n="azure.sample2Cap">Keyword normalized to canonical title with a match method &amp; confidence</span></p>
+      <table class="segment-table" style="margin-top:8px; font-size:0.8rem">
+        <tr><th>keyword</th><th>keyword_normalized</th><th>_kw_match_score</th><th>_kw_match_method</th></tr>
+        <tr><td>doremon</td><td>Doraemon</td><td>1.0</td><td>llm_fuzzy_clustered</td></tr>
+        <tr><td>one pice</td><td>One Piece</td><td>0.95</td><td>llm_fuzzy_clustered</td></tr>
+        <tr><td>vượt bguc</td><td>Vượt Ngục</td><td>0.89</td><td>rapidfuzz</td></tr>
+      </table>
+
+      <p style="margin-top:20px; font-size:0.85rem; color:var(--text-muted,#9ca3af)"><span class="seg-badge seg-yellow">Silver → Gold</span> <span data-i18n="azure.sample3Cap">Facts join surrogate keys; dimensions carry descriptive attributes</span></p>
+      <table class="segment-table" style="margin-top:8px; font-size:0.8rem">
+        <tr><th>eventID</th><th>date_key</th><th>hour_of_day</th><th>platform_key</th><th>keyword_normalized</th></tr>
+        <tr><td>0afcf316…</td><td>20220602</td><td>17</td><td>21</td><td>Doraemon</td></tr>
+        <tr><td>e3f53aef…</td><td>20220602</td><td>14</td><td>8</td><td>One Piece</td></tr>
+      </table>
+
+      <h3 style="margin-top:28px; margin-bottom:8px; font-size:0.95rem" data-i18n="azure.fkH">Data-quality challenges encountered</h3>
+      <div class="error-cards">
+        <div class="error-card red">
+          <p class="err-title">Cast to TIMESTAMP failed — two datetime formats in one column</p>
+          <p><span data-i18n="azure.fk1a">The source mixed 24-hour strings with Vietnamese-locale 12-hour values carrying</span> <code>SA</code>/<code>CH</code> <span data-i18n="azure.fk1b">(AM/PM) suffixes. Fixed by regexp-substituting the suffixes then</span> <code>coalesce(try_to_timestamp(24h), try_to_timestamp(12h))</code>.</p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">Timestamps in year 2565 — Buddhist-Era calendar</p>
+          <p><span data-i18n="azure.fk2a">108 rows landed 543 years in the future (Thai BE calendar). Corrected with</span> <code>add_months(-543*12)</code> <span data-i18n="azure.fk2b">in Silver; 14 truly unparseable rows are dropped and show as the Bronze→Silver delta on the Grafana dashboard.</span></p>
+        </div>
+        <div class="error-card red">
+          <p class="err-title">Vietnamese rendered as "?" in Superset</p>
+          <p><span data-i18n="azure.fk3a">Hours were spent chasing a pymssql/FreeTDS driver bug. The real cause: Synapse's default</span> <code>CP1252</code> <span data-i18n="azure.fk3b">collation can't hold characters like ầ/ồ/ữ. Fixed with</span> <code>ALTER DATABASE gold_db COLLATE Latin1_General_100_BIN2_UTF8</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ML normalization ────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.mlH">ML keyword normalization</h2>
+      <p data-i18n="azure.mlP">The core challenge: map messy search keywords to canonical movie titles. A local LLM classifies high-frequency keywords, then fuzzy matching handles the long tail — all applied to Silver via an idempotent MERGE.</p>
+
+      <ul style="margin-top:12px">
+        <li><strong data-i18n="azure.ml1l">Pareto scoping</strong> — <span data-i18n="azure.ml1">keywords with freq ≥ 2 (7,646 unique) cover ~72% of traffic; the 21K freq=1 long-tail is handled with cheap fuzzy matching instead of the LLM</span></li>
+        <li><strong data-i18n="azure.ml2l">Local LLM</strong> — <span data-i18n="azure.ml2">Qwen2.5-14B via LM Studio (JSON-schema output, 4 worker threads) labels each keyword: movie or not, canonical title, confidence</span></li>
+        <li><strong data-i18n="azure.ml3l">Confidence calibration</strong> — <span data-i18n="azure.ml3">a hand-reviewed sample showed the model is not well-calibrated (weighted fit R²=0.405); accuracy at conf 0.85 was 17.4% vs 65.3% at ≥0.95, so only ≥0.95 mappings are trusted</span></li>
+        <li><strong data-i18n="azure.ml4l">Fuzzy clustering</strong> — <span data-i18n="azure.ml4">rapidfuzz (threshold 92, sequel-protection rules) merges near-duplicate titles: 3,173 → 3,006</span></li>
+      </ul>
+
+      <table class="segment-table" style="margin-top:20px">
+        <tr><th data-i18n="azure.th.method">Match method</th><th data-i18n="azure.th.rows2">Rows</th><th data-i18n="azure.th.meaning">Meaning</th></tr>
+        <tr><td><span class="seg-badge seg-green">llm_fuzzy_clustered</span></td><td>30,703</td><td data-i18n="azure.mm1">LLM-confirmed movie, conf ≥ 0.95, clustered</td></tr>
+        <tr><td><span class="seg-badge seg-blue">rapidfuzz</span></td><td>~1,445</td><td data-i18n="azure.mm2">Long-tail fuzzy-matched to a confirmed title</td></tr>
+        <tr><td><span class="seg-badge seg-gray">llm_not_movie</span></td><td>20,867</td><td data-i18n="azure.mm3">Not a movie title — channels, apps, noise</td></tr>
+        <tr><td><span class="seg-badge seg-orange">low_confidence</span></td><td>1,292</td><td data-i18n="azure.mm4">Suspected movie, conf &lt; 0.95 — kept raw</td></tr>
+        <tr><td><span class="seg-badge seg-purple">raw</span></td><td>27,162</td><td data-i18n="azure.mm5">Remaining long-tail, left as-is (demo scope)</td></tr>
+      </table>
+
+      <p style="margin-top:14px; font-size:0.88rem; font-style:italic; color:var(--text-muted,#9ca3af)" data-i18n="azure.mlNote">Raw LLM accuracy was only 40.4% — the honest number is what drove the strict 0.95 threshold instead of blindly trusting model confidence.</p>
+    </section>
+
+    <!-- ── Approach ────────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.approachH">Approach</h2>
+      <p data-i18n="azure.appP">Five notebooks move data one layer at a time, wired into a Databricks Job that fires on file arrival. Transforms run in PySpark; Unity Catalog governs access; Auto Loader handles incremental ingestion.</p>
+
+      <h3 style="margin-top:20px; margin-bottom:8px; font-size:0.95rem" data-i18n="azure.step1H">Step 1 — Incremental ingest (Auto Loader)</h3>
+      <p><span data-i18n="azure.step1a">Bronze uses</span> <code>cloudFiles</code> <span data-i18n="azure.step1b">with</span> <code>trigger(availableNow=True)</code><span data-i18n="azure.step1c">. A checkpoint tracks which files were processed, so only new files are read and re-running the notebook never duplicates rows — batch economics with streaming plumbing.</span></p>
+      <ul style="margin-top:8px">
+        <li><strong data-i18n="azure.m1l">Exactly-once</strong> — <span data-i18n="azure.m1">the checkpoint guarantees each file is ingested once, no manual offset tracking</span></li>
+        <li><strong data-i18n="azure.m2l">No small-files problem</strong> — <span data-i18n="azure.m2">Spark controls output file sizes rather than hand-chunking rows into tiny Parquet files</span></li>
+        <li><strong data-i18n="azure.m3l">Event-driven</strong> — <span data-i18n="azure.m3">a Databricks Job with a file-arrival trigger runs the whole chain when a new batch lands</span></li>
+      </ul>
+
+      <h3 style="margin-top:24px; margin-bottom:8px; font-size:0.95rem" data-i18n="azure.step2H">Step 2 — Transform, normalize &amp; model</h3>
+      <p><span data-i18n="azure.step2a">Silver fixes calendars/locales, lowercases fields, and applies the ML mapping via</span> <code>MERGE</code><span data-i18n="azure.step2b">. Gold builds a star schema: a central fact plus six dimensions and a bridge table for the user↔subscription many-to-many.</span></p>
+
+      <table class="segment-table" style="margin-top:16px">
+        <tr><th data-i18n="azure.th.rel">Relationship</th><th data-i18n="azure.th.how">How it's modeled</th></tr>
+        <tr><td><span class="seg-badge seg-green">fact → 5 dims</span></td><td data-i18n="azure.rel1">date / platform / category / network / user joined by surrogate keys</td></tr>
+        <tr><td><span class="seg-badge seg-blue">user ↔ subscription</span></td><td data-i18n="azure.rel2">many-to-many resolved through bridge_user_plan (not joined straight to the fact)</td></tr>
+        <tr><td><span class="seg-badge seg-orange">dim_user</span></td><td><code>SCD Type 1</code> <span data-i18n="azure.rel3">— dataset spans 3 days; Type 2 is the documented evolution path</span></td></tr>
+      </table>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="azure.ucH">Where Unity Catalog &amp; Synapse fit in</h3>
+      <p><span data-i18n="azure.ucP1">Unity Catalog</span> <strong data-i18n="azure.ucBold">is not on the data path</strong><span data-i18n="azure.ucP1b">. Delta files live on ADLS Gen2; Unity Catalog is the governance layer that tracks each table's location, schema, and access via a Managed Identity. Synapse Serverless holds no data either — it queries the exported Delta files in place through OPENROWSET, billed per TB scanned, keeping BI queries off the pipeline's compute.</span></p>
+      <p style="margin-top:10px; font-size:0.88rem; font-style:italic; color:var(--text-muted,#9ca3af)" data-i18n="azure.ucAnalogy">📚 ADLS is the bookshelf holding the actual files; Unity Catalog is the card catalog; Synapse is a reading desk that opens the books in place without copying them.</p>
+
+      <h3 style="margin-top:24px; margin-bottom:12px; font-size:0.95rem" data-i18n="azure.sqlH">Key techniques used</h3>
+      <div class="technique-list">
+        <div class="technique-item">
+          <code>readStream.format("cloudFiles")</code>
+          <p data-i18n="azure.sql1">Auto Loader with availableNow trigger — incremental, exactly-once file ingestion that terminates like a batch job.</p>
+        </div>
+        <div class="technique-item">
+          <code>MERGE INTO ... WHEN MATCHED</code>
+          <p data-i18n="azure.sql2">Idempotent application of the ML keyword mapping keyed on keyword + method='raw', safe to re-run.</p>
+        </div>
+        <div class="technique-item">
+          <code>rapidfuzz UDF + diacritic strip</code>
+          <p data-i18n="azure.sql3">Long-tail matching with Vietnamese diacritic normalization and a min-length ≥ 6 guard to stop short keywords matching nonsense.</p>
+        </div>
+        <div class="technique-item">
+          <code>OPENROWSET(FORMAT='DELTA')</code>
+          <p data-i18n="azure.sql4">Synapse Serverless views read the exported Delta tables in place — no data copy, pay-per-scan serving.</p>
+        </div>
+        <div class="technique-item">
+          <code>Pushgateway ← ngrok ← Databricks</code>
+          <p data-i18n="azure.sql5">Row-count metrics pushed from the cloud through a tunnel to a local Prometheus, visualized in Grafana as pipeline observability.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Dashboards ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.dashH">Dashboards &amp; monitoring</h2>
+      <p><span data-i18n="azure.dashPa">A Superset dashboard for analytics, connected to Synapse, plus a Grafana dashboard for pipeline observability fed from Databricks.</span></p>
+
+      <table class="segment-table" style="margin-top:16px">
+        <tr><th data-i18n="azure.th.tool">Tool</th><th data-i18n="azure.th.focus">Focus</th><th data-i18n="azure.th.visuals">Key visuals</th></tr>
+        <tr>
+          <td>Superset</td>
+          <td data-i18n="azure.aud.bi">OTT search analytics</td>
+          <td data-i18n="azure.vis1">Top 20 movies · searches by hour (prime-time peak 20–21h) · match-method pie · device type · ISP · subscription plans · movie keyword cloud</td>
+        </tr>
+        <tr>
+          <td>Grafana</td>
+          <td data-i18n="azure.aud.obs">Pipeline observability</td>
+          <td data-i18n="azure.vis2">Per-table row counts by layer · total 302,794 rows · the 14-row Bronze→Silver drop visible at a glance</td>
+        </tr>
+      </table>
+    </section>
+
+    <!-- ── Screenshot ──────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.shotH">Screenshots</h2>
+      <div class="shot-frame">
+        <img src="../project/ott_search_analytics.jpg" alt="Superset OTT Search Analytics dashboard — top 20 movies, searches by hour, match method pie, device type, ISP, subscription plans, movie keyword cloud" loading="lazy">
+        <div style="height:24px"></div>
+        <img src="../project/grafana.png" alt="Grafana Lakehouse Pipeline Monitoring — per-table row counts, total rows, rows by layer" loading="lazy">
+        <p class="shot-caption" data-i18n="azure.shotCap">Superset analytics (top) and Grafana pipeline monitoring (bottom).</p>
+      </div>
+    </section>
+
+    <!-- ── Results ─────────────────────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.resultsH">Results</h2>
+      <div class="results-grid">
+        <div class="result-stat">
+          <span class="num">81K</span>
+          <span class="label" data-i18n="azure.r1">search events through the full medallion pipeline</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">3,006</span>
+          <span class="label" data-i18n="azure.r2">canonical movie titles resolved by ML from messy keywords</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">8</span>
+          <span class="label" data-i18n="azure.r3">Gold tables — fact + 6 dimensions + bridge (star schema)</span>
+        </div>
+        <div class="result-stat">
+          <span class="num">7 + 3</span>
+          <span class="label" data-i18n="azure.r4">Superset analytics charts + Grafana monitoring panels</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── What I'd do differently ─────────────────────────────── -->
+    <section class="project-section reveal">
+      <h2 data-i18n="azure.diffH">What I'd do differently</h2>
+      <p data-i18n="azure.diffPa">Process the full long-tail — the demo ran rapidfuzz on 4K of the 27K remaining raw keywords; a complete pass would push normalization coverage well past 72%.</p>
+      <p style="margin-top:12px"><span data-i18n="azure.diffP2a">Add a</span> <code>dim_movie</code> <span data-i18n="azure.diffP2b">dimension instead of keeping the normalized title as a degenerate attribute on the fact — cleaner for title-level slicing and future enrichment (genre, release year).</span></p>
+      <p style="margin-top:12px" data-i18n="azure.diffP3">Replace the ngrok tunnel with a Pushgateway on Azure Container Instances inside the same VNet — the honest production answer to "how does a cloud job reach a home PC behind CGNAT."</p>
+      <ul style="margin-top:8px">
+        <li><strong data-i18n="azure.diff3l1">SCD Type 2 on dim_user</strong> — <span data-i18n="azure.diff3p1">once multi-week history exists, track profile changes over time instead of overwriting</span></li>
+        <li><strong data-i18n="azure.diff3l2">Data-quality gates</strong> — <span data-i18n="azure.diff3p2">Delta constraints between layers with Grafana alerting when row counts drift unexpectedly</span></li>
+        <li><strong data-i18n="azure.diff3l3">CI/CD for notebooks</strong> — <span data-i18n="azure.diff3p3">Databricks Asset Bundles; Terraform IaC is demonstrated in my separate CI/CD project</span></li>
+      </ul>
+    </section>
+
+  </div>
+
+  <nav class="project-nav">
+    <a href="../index.html#projects" class="project-nav-link prev">
+      <span class="dir" data-i18n="cs.navBack">← Back to all projects</span>
+    </a>
+    <a href="../index.html#projects" class="project-nav-link next">
+      <span class="dir" data-i18n="cs.navNext">Next project →</span>
+    </a>
+  </nav>
+
+</main>
+
+<footer class="footer" id="contact">
+  <div class="footer-inner">
+    <div class="footer-text reveal">
+      <h2 data-i18n="footer.title">Let's talk</h2>
+      <p data-i18n="footer.sub">Open to data engineering and analytics roles.</p>
+      <a class="footer-email" href="mailto:ndminh206@gmail.com">ndminh206@gmail.com</a>
+    </div>
+    <div class="footer-links reveal">
+      <a href="https://github.com/example" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://linkedin.com/in/example" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+  <p class="visitor-count"><span data-i18n="footer.visitors">Visitors:</span> <span id="visitorCount">—</span></p>
+</footer>
+
+<script src="../script.js"></script>
+</body>
+</html>
