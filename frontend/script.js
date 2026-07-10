@@ -791,9 +791,9 @@
   ---------------------------------------- */
   var visitorCountEl = document.getElementById("visitorCount");
   if (visitorCountEl) {
-    fetch("https://minhnguyen.goatcounter.com/counter/" + encodeURIComponent(location.pathname) + ".json")
+    fetch("https://minhnguyen.goatcounter.com/counter/TOTAL.json")
       .then(function (r) { return r.json(); })
-      .then(function (data) { visitorCountEl.textContent = data.count; })
+      .then(function (data) { visitorCountEl.textContent = data.count_unique; })
       .catch(function () { visitorCountEl.textContent = "—"; });
   }
 
