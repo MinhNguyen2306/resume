@@ -791,15 +791,10 @@
   ---------------------------------------- */
   var visitorCountEl = document.getElementById("visitorCount");
   if (visitorCountEl) {
-    var count = 1;
-    try {
-      var stored = sessionStorage.getItem("mn_visitor_count");
-      count = stored ? parseInt(stored, 10) + 1 : Math.floor(Math.random() * 50) + 120;
-      sessionStorage.setItem("mn_visitor_count", String(count));
-    } catch (e) {
-      count = Math.floor(Math.random() * 50) + 120;
-    }
-    visitorCountEl.textContent = count;
+    fetch("https://minhnguyen.goatcounter.com/counter/" + encodeURIComponent(location.pathname) + ".json")
+      .then(function (r) { return r.json(); })
+      .then(function (data) { visitorCountEl.textContent = data.count; })
+      .catch(function () { visitorCountEl.textContent = "—"; });
   }
 
   /* ----------------------------------------
