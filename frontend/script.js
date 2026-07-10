@@ -910,3 +910,32 @@
     }
   }
 })();
+// ── Hero terminal typing effect ──
+(function () {
+  var el = document.getElementById("typedCode");
+  if (!el) return;
+
+  var code =
+`df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "parquet")
+    .load(LANDING_PATH)
+    .writeStream
+    .trigger(availableNow=True)
+    .toTable("bronze.events"))
+
+# Bronze -> Silver -> Gold
+# Loading successful`;
+
+  var i = 0;
+  function type() {
+    if (i <= code.length) {
+      el.textContent = code.slice(0, i);
+      i++;
+      // gõ nhanh chậm ngẫu nhiên cho tự nhiên
+      setTimeout(type, Math.random() * 40 + 20);
+    }
+  }
+  // chờ 1 chút rồi bắt đầu gõ
+  setTimeout(type, 600);
+})();
